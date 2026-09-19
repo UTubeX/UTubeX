@@ -2,125 +2,40 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>UTubeX</title>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#0f0f0f;color:#fff}
-button,input{font:inherit}
-button{cursor:pointer}
-
-.header{
-height:64px;background:#0f0f0f;border-bottom:1px solid #292929;
-display:flex;align-items:center;padding:0 20px;gap:22px;
-position:fixed;top:0;left:0;right:0;z-index:20
-}
-.brand{font-size:25px;font-weight:800;letter-spacing:-1px}
-.brand span{color:#6c63ff}
-.search{
-flex:1;max-width:650px;background:#1f1f1f;border:1px solid #333;
-border-radius:24px;padding:11px 18px;color:#fff;outline:none
-}
-.topbtn{
-background:#fff;color:#000;border:0;border-radius:20px;
-padding:10px 20px;font-weight:700
-}
-
-.sidebar{
-position:fixed;top:64px;left:0;bottom:0;width:220px;
-background:#111;border-right:1px solid #292929;padding:22px 12px;
-z-index:10
-}
-.side-logo{
-width:120px;height:auto;display:block;margin:0 auto 22px
-}
-.navbtn{
-width:100%;background:transparent;color:#ddd;border:0;
-text-align:left;padding:13px 16px;border-radius:10px;
-margin-bottom:4px;font-size:15px
-}
+button,input{font:inherit}button{cursor:pointer}
+.header{height:64px;background:#0f0f0f;border-bottom:1px solid #292929;display:flex;align-items:center;padding:0 20px;gap:22px;position:fixed;top:0;left:0;right:0;z-index:20}
+.brand{font-size:25px;font-weight:800}.brand span{color:#6c63ff}
+.search{flex:1;max-width:650px;background:#1f1f1f;border:1px solid #333;border-radius:24px;padding:11px 18px;color:#fff;outline:0}
+.topbtn{background:#fff;color:#000;border:0;border-radius:20px;padding:10px 20px;font-weight:700}
+.sidebar{position:fixed;top:64px;left:0;bottom:0;width:220px;background:#111;border-right:1px solid #292929;padding:22px 12px;z-index:10}
+.side-logo{width:120px;display:block;margin:0 auto 22px}
+.navbtn{width:100%;background:0;color:#ddd;border:0;text-align:left;padding:13px 16px;border-radius:10px;margin-bottom:4px;font-size:15px}
 .navbtn:hover,.navbtn.active{background:#272727;color:#fff}
-
 .main{margin-left:220px;padding:92px 28px 40px}
-.hero{
-background:linear-gradient(120deg,#171717,#242424);
-border:1px solid #303030;border-radius:18px;padding:35px;
-margin-bottom:28px
-}
-.hero h1{font-size:34px;margin-bottom:10px}
-.hero p{color:#aaa}
-
+.hero{background:linear-gradient(120deg,#171717,#242424);border:1px solid #303030;border-radius:18px;padding:35px;margin-bottom:28px}
+.hero h1{font-size:34px;margin-bottom:10px}.hero p,.card p{color:#aaa}
 .section-title{font-size:22px;margin:28px 0 16px}
-
-.grid{
-display:grid;grid-template-columns:repeat(4,1fr);gap:16px
-}
-.card{
-background:#181818;border:1px solid #292929;border-radius:14px;
-padding:24px;min-height:130px
-}
-.card h3{margin-bottom:8px}
-.card p{color:#999;font-size:14px}
-
-.actions{
-display:grid;grid-template-columns:repeat(4,1fr);gap:14px
-}
-.action{
-background:#1c1c1c;border:1px solid #303030;color:#fff;
-padding:18px;border-radius:12px;text-align:left
-}
+.grid,.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{background:#181818;border:1px solid #292929;border-radius:14px;padding:24px;min-height:130px}
+.card h3{margin-bottom:8px}.card p{font-size:14px}
+.action{background:#1c1c1c;border:1px solid #303030;color:#fff;padding:18px;border-radius:12px;text-align:left}
 .action:hover{background:#292929}
-
-.modal-bg{
-display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);
-z-index:50;align-items:center;justify-content:center
-}
-.modal{
-width:min(420px,92%);background:#181818;border:1px solid #333;
-border-radius:16px;padding:25px
-}
-.modal h2{margin-bottom:18px}
-.modal input{
-width:100%;padding:13px;margin:7px 0;background:#101010;
-border:1px solid #3a3a3a;color:#fff;border-radius:8px;outline:none
-}
-.modal button.mainbtn{
-width:100%;padding:13px;margin-top:10px;border:0;
-background:#fff;color:#000;border-radius:8px;font-weight:700
-}
-.close{
-float:right;background:none;border:0;color:#aaa;font-size:22px
-}
-.switch{
-margin-top:15px;text-align:center;color:#aaa;font-size:14px
-}
-.switch button{
-background:none;border:0;color:#8b82ff;font-weight:700
-}
-.msg{
-margin-top:12px;text-align:center;font-size:14px;color:#ccc
-}
-
-@media(max-width:900px){
-.sidebar{width:80px}
-.side-logo{width:50px}
-.navbtn{font-size:0;text-align:center}
-.main{margin-left:80px}
-.grid,.actions{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:600px){
-.header{padding:0 10px;gap:10px}
-.brand{font-size:20px}
-.search{display:none}
-.sidebar{width:70px}
-.main{margin-left:70px;padding:82px 14px 30px}
-.grid,.actions{grid-template-columns:1fr}
-.hero h1{font-size:27px}
-}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;align-items:center;justify-content:center}
+.modal{width:min(420px,92%);background:#181818;border:1px solid #333;border-radius:16px;padding:25px}
+.modal h2{margin-bottom:18px}.modal input{width:100%;padding:13px;margin:7px 0;background:#101010;border:1px solid #3a3a3a;color:#fff;border-radius:8px;outline:0}
+.modal button.mainbtn{width:100%;padding:13px;margin-top:10px;border:0;background:#fff;color:#000;border-radius:8px;font-weight:700}
+.close{float:right;background:0;border:0;color:#aaa;font-size:22px}
+.switch{margin-top:15px;text-align:center;color:#aaa;font-size:14px}.switch button{background:0;border:0;color:#8b82ff;font-weight:700}
+.msg{margin-top:12px;text-align:center;font-size:14px;color:#ccc;line-height:1.5}
+@media(max-width:900px){.sidebar{width:80px}.side-logo{width:50px}.navbtn{font-size:0;text-align:center}.main{margin-left:80px}.grid,.actions{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.header{padding:0 10px;gap:10px}.brand{font-size:20px}.search{display:none}.sidebar{width:70px}.main{margin-left:70px;padding:82px 14px 30px}.grid,.actions{grid-template-columns:1fr}.hero h1{font-size:27px}}
 </style>
 </head>
-
 <body>
 
 <header class="header">
@@ -130,9 +45,7 @@ margin-top:12px;text-align:center;font-size:14px;color:#ccc
 </header>
 
 <aside class="sidebar">
-
 <img src="logo.png" class="side-logo" alt="UTubeX">
-
 <button class="navbtn active" onclick="showHome()">Home</button>
 <button class="navbtn" onclick="showMessage('Shorts')">Shorts</button>
 <button class="navbtn" onclick="showMessage('Movies')">Movies</button>
@@ -141,150 +54,76 @@ margin-top:12px;text-align:center;font-size:14px;color:#ccc
 <button class="navbtn" onclick="openUpload()">Upload</button>
 <button class="navbtn" onclick="openChannel()">U Channel</button>
 <button class="navbtn" onclick="openEarnings()">Earnings</button>
-
 </aside>
 
 <main class="main">
-
 <section class="hero">
 <h1>Welcome to UTubeX</h1>
 <p>Watch, upload and share videos with your own U Channel.</p>
 </section>
 
 <h2 class="section-title">Explore UTubeX</h2>
-
 <div class="grid">
-<div class="card">
-<h3>Movies</h3>
-<p>Watch long-form movies and videos.</p>
-</div>
-
-<div class="card">
-<h3>Music</h3>
-<p>Discover music and entertainment.</p>
-</div>
-
-<div class="card">
-<h3>Shorts</h3>
-<p>Watch quick vertical videos.</p>
-</div>
-
-<div class="card">
-<h3>Live</h3>
-<p>Watch live content and streams.</p>
-</div>
+<div class="card"><h3>Movies</h3><p>Watch long-form movies and videos.</p></div>
+<div class="card"><h3>Music</h3><p>Discover music and entertainment.</p></div>
+<div class="card"><h3>Shorts</h3><p>Watch quick vertical videos.</p></div>
+<div class="card"><h3>Live</h3><p>Watch live content and streams.</p></div>
 </div>
 
 <h2 class="section-title">Creator Studio</h2>
-
 <div class="actions">
-<button class="action" onclick="openUpload()">
-<h3>Upload Video</h3>
-<p>Upload your video content.</p>
-</button>
-
-<button class="action" onclick="openUpload()">
-<h3>Upload Movie</h3>
-<p>Manage long videos.</p>
-</button>
-
-<button class="action" onclick="openUpload()">
-<h3>Upload Music</h3>
-<p>Publish music content.</p>
-</button>
-
-<button class="action" onclick="openUpload()">
-<h3>Upload Shorts</h3>
-<p>Create short-form content.</p>
-</button>
-
-<button class="action" onclick="showMessage('Live Studio')">
-<h3>Go Live</h3>
-<p>Start a live stream.</p>
-</button>
-
-<button class="action" onclick="openChannel()">
-<h3>Manage U Channel</h3>
-<p>Manage your creator channel.</p>
-</button>
+<button class="action" onclick="openUpload()"><h3>Upload Video</h3><p>Upload your video content.</p></button>
+<button class="action" onclick="openUpload()"><h3>Upload Movie</h3><p>Manage long videos.</p></button>
+<button class="action" onclick="openUpload()"><h3>Upload Music</h3><p>Publish music content.</p></button>
+<button class="action" onclick="openUpload()"><h3>Upload Shorts</h3><p>Create short-form content.</p></button>
+<button class="action" onclick="showMessage('Live Studio')"><h3>Go Live</h3><p>Start a live stream.</p></button>
+<button class="action" onclick="openChannel()"><h3>Manage U Channel</h3><p>Manage your creator channel.</p></button>
 </div>
 
 <h2 class="section-title">Recommended</h2>
-
 <div class="grid">
 <div class="card"><h3>Featured Video</h3><p>Recommended content will appear here.</p></div>
 <div class="card"><h3>Trending</h3><p>Popular content will appear here.</p></div>
 <div class="card"><h3>New Uploads</h3><p>Latest uploads will appear here.</p></div>
 <div class="card"><h3>Live Now</h3><p>Live creators will appear here.</p></div>
 </div>
-
 </main>
-
-
-<!-- LOGIN / SIGN UP -->
 
 <div class="modal-bg" id="loginModal">
 <div class="modal">
-
 <button class="close" onclick="closeModal('loginModal')">×</button>
 
 <div id="loginBox">
-
 <h2>Login to UTubeX</h2>
-
 <input id="loginEmail" type="email" placeholder="Email address">
 <input id="loginPassword" type="password" placeholder="Password">
-
 <button class="mainbtn" onclick="loginUser()">Login</button>
-
-<div class="switch">
-New to UTubeX?
-<button onclick="showSignup()">Create New Account</button>
-</div>
-
+<div class="switch">New to UTubeX?
+<button onclick="showSignup()">Create New Account</button></div>
 <div class="msg" id="loginMsg"></div>
-
 </div>
-
 
 <div id="signupBox" style="display:none">
-
 <h2>Create New Account</h2>
-
 <input id="signupEmail" type="email" placeholder="Email address">
 <input id="signupPassword" type="password" placeholder="Create password">
-
 <button class="mainbtn" onclick="signupUser()">Create Account</button>
-
-<div class="switch">
-Already have an account?
-<button onclick="showLogin()">Login</button>
-</div>
-
+<div class="switch">Already have an account?
+<button onclick="showLogin()">Login</button></div>
 <div class="msg" id="signupMsg"></div>
-
 </div>
 
 </div>
 </div>
-
-
-<!-- UPLOAD -->
 
 <div class="modal-bg" id="uploadModal">
 <div class="modal">
 <button class="close" onclick="closeModal('uploadModal')">×</button>
 <h2>Upload Content</h2>
 <input type="file" id="videoFile" accept="video/*">
-<button class="mainbtn" onclick="showMessage('Upload system will be connected next.')">
-Continue
-</button>
-<div class="msg" id="uploadMsg"></div>
+<button class="mainbtn" onclick="showMessage('Upload system will be connected next.')">Continue</button>
 </div>
 </div>
-
-
-<!-- U CHANNEL -->
 
 <div class="modal-bg" id="channelModal">
 <div class="modal">
@@ -292,107 +131,63 @@ Continue
 <h2>Your U Channel</h2>
 <input placeholder="Channel name">
 <input placeholder="Channel description">
-<button class="mainbtn" onclick="showMessage('U Channel setup ready.')">
-Create U Channel
-</button>
+<button class="mainbtn" onclick="showMessage('U Channel setup ready.')">Create U Channel</button>
 </div>
 </div>
-
-
-<!-- EARNINGS -->
 
 <div class="modal-bg" id="earningsModal">
 <div class="modal">
 <button class="close" onclick="closeModal('earningsModal')">×</button>
 <h2>Earnings</h2>
-<p style="color:#aaa;line-height:1.6">
-Your creator earnings dashboard will appear here when the monetization system is connected.
-</p>
+<p style="color:#aaa;line-height:1.6">Your creator earnings dashboard will appear here when the monetization system is connected.</p>
 </div>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
+const SUPABASE_URL="https://ddwokezrocpzfhxgltbc.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_6V6qmPBuNC8CaAu3zbdnFg_SdXDZEk0";
+const REDIRECT_URL="https://utubex.github.io/UTubeX/";
 
-/* ==============================
-   SUPABASE SETTINGS
-   केवल नीचे की दो लाइन बदलें
-   ============================== */
-
-const SUPABASE_URL = "https://ddwokezrocpzfhxgltbc.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_6V6qmPBuNC8CaAu3zbdnFg_SdXDZEk0";
-
-
-let supabaseClient = null;
-
-if(
-SUPABASE_URL &&
-SUPABASE_PUBLISHABLE_KEY &&
-!SUPABASE_URL.includes("PASTE_") &&
-!SUPABASE_PUBLISHABLE_KEY.includes("PASTE_")
-){
-supabaseClient =
-window.supabase.createClient(
+const supabaseClient=window.supabase.createClient(
 SUPABASE_URL,
 SUPABASE_PUBLISHABLE_KEY
 );
-}
-
-
-/* MODALS */
 
 function openLogin(){
 document.getElementById("loginModal").style.display="flex";
 showLogin();
 }
-
 function showSignup(){
 document.getElementById("loginBox").style.display="none";
 document.getElementById("signupBox").style.display="block";
 }
-
 function showLogin(){
 document.getElementById("signupBox").style.display="none";
 document.getElementById("loginBox").style.display="block";
 }
-
 function closeModal(id){
 document.getElementById(id).style.display="none";
 }
 
-
-/* SIGN UP */
-
 async function signupUser(){
+const email=document.getElementById("signupEmail").value.trim();
+const password=document.getElementById("signupPassword").value;
+const msg=document.getElementById("signupMsg");
 
-const email =
-document.getElementById("signupEmail").value.trim();
-
-const password =
-document.getElementById("signupPassword").value;
-
-const msg =
-document.getElementById("signupMsg");
-
-if(!supabaseClient){
-msg.textContent="Supabase settings अभी code में डालना बाकी है।";
-return;
-}
-
-if(!email || !password){
+if(!email||!password){
 msg.textContent="Email और password भरें।";
 return;
 }
 
 msg.textContent="Account बनाया जा रहा है...";
 
-const {data,error} =
-await supabaseClient.auth.signUp({
+const {data,error}=await supabaseClient.auth.signUp({
 email:email,
-password:password
+password:password,
+options:{
+emailRedirectTo:REDIRECT_URL
+}
 });
 
 if(error){
@@ -400,44 +195,30 @@ msg.textContent=error.message;
 return;
 }
 
-/* Account created */
-
-msg.textContent=
-"Account बन गया है। कृपया अपना email देखें और verification पूरा करें।";
-
-document.getElementById("signupEmail").value="";
-document.getElementById("signupPassword").value="";
-
-}
-
-
-/* LOGIN */
-
-async function loginUser(){
-
-const email =
-document.getElementById("loginEmail").value.trim();
-
-const password =
-document.getElementById("loginPassword").value;
-
-const msg =
-document.getElementById("loginMsg");
-
-if(!supabaseClient){
-msg.textContent="Supabase settings अभी code में डालना बाकी है।";
+if(data.session){
+msg.textContent="Account बन गया और Login हो गया।";
+setTimeout(()=>closeModal("loginModal"),1000);
 return;
 }
 
-if(!email || !password){
+msg.textContent="Account बन गया है। अपने Gmail में verification email खोलकर Confirm your email पर क्लिक करें। इसके बाद UTubeX पर वापस आकर Login करें।";
+document.getElementById("signupEmail").value="";
+document.getElementById("signupPassword").value="";
+}
+
+async function loginUser(){
+const email=document.getElementById("loginEmail").value.trim();
+const password=document.getElementById("loginPassword").value;
+const msg=document.getElementById("loginMsg");
+
+if(!email||!password){
 msg.textContent="Email और password भरें।";
 return;
 }
 
 msg.textContent="Login हो रहा है...";
 
-const {data,error} =
-await supabaseClient.auth.signInWithPassword({
+const {error}=await supabaseClient.auth.signInWithPassword({
 email:email,
 password:password
 });
@@ -448,37 +229,30 @@ return;
 }
 
 msg.textContent="Login सफल हुआ।";
-
-setTimeout(()=>{
-closeModal("loginModal");
-},800);
-
+setTimeout(()=>closeModal("loginModal"),800);
 }
 
-
-/* OTHER BUTTONS */
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+if(event==="SIGNED_IN"&&session){
+closeModal("loginModal");
+}
+});
 
 function openUpload(){
 document.getElementById("uploadModal").style.display="flex";
 }
-
 function openChannel(){
 document.getElementById("channelModal").style.display="flex";
 }
-
 function openEarnings(){
 document.getElementById("earningsModal").style.display="flex";
 }
-
 function showHome(){
 window.scrollTo({top:0,behavior:"smooth"});
 }
-
 function showMessage(text){
 alert(text);
 }
-
 </script>
-
 </body>
 </html>
