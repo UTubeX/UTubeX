@@ -1,705 +1,622 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>UTubeX - Watch & Share Videos</title>
+<title>UTubeX - Watch, Upload and Share Videos</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
+<meta name="description" content="UTubeX - Watch, upload and share videos.">
+<meta name="theme-color" content="#ffffff">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:#f8f9fa;
+    color:#111;
+}
+
+/* HEADER */
+.header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+    height:70px;
+    background:#fff;
+    border-bottom:1px solid #e5e5e5;
+    display:flex;
+    align-items:center;
+    gap:25px;
+    padding:0 25px;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:190px;
+}
+
+.brand img{
+    width:45px;
+    height:45px;
+    object-fit:contain;
+    border-radius:10px;
+}
+
+.brand-name{
+    font-size:24px;
+    font-weight:800;
+    letter-spacing:-1px;
+}
+
+.search{
+    flex:1;
+    max-width:650px;
+    margin:auto;
+    display:flex;
+}
+
+.search input{
+    width:100%;
+    height:44px;
+    border:1px solid #ccc;
+    border-radius:25px 0 0 25px;
+    padding:0 20px;
+    font-size:15px;
+    outline:none;
+}
+
+.search button{
+    width:65px;
+    border:none;
+    background:#111;
+    color:white;
+    border-radius:0 25px 25px 0;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.login{
+    background:#111;
+    color:#fff;
+    border:none;
+    padding:11px 20px;
+    border-radius:22px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* LAYOUT */
+.layout{
+    display:flex;
+}
+
+/* SIDEBAR */
+.sidebar{
+    position:fixed;
+    left:0;
+    top:70px;
+    bottom:0;
+    width:230px;
+    background:#fff;
+    border-right:1px solid #e5e5e5;
+    padding:20px 12px;
+}
+
+.side-btn{
+    width:100%;
+    border:none;
+    background:transparent;
+    padding:13px 15px;
+    text-align:left;
+    border-radius:10px;
+    font-size:15px;
+    cursor:pointer;
+    margin-bottom:4px;
+}
+
+.side-btn:hover{
+    background:#f0f0f0;
+}
+
+.side-btn.active{
+    background:#111;
+    color:#fff;
+    font-weight:bold;
+}
+
+/* MAIN */
+.main{
+    margin-left:230px;
+    width:calc(100% - 230px);
+    padding:25px;
+}
+
+/* CATEGORIES */
+.categories{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding-bottom:20px;
+}
+
+.category{
+    white-space:nowrap;
+    border:none;
+    background:#e9eaec;
+    padding:10px 17px;
+    border-radius:20px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.category:hover{
+    background:#111;
+    color:white;
+}
+
+/* HERO */
+.hero{
+    min-height:270px;
+    background:linear-gradient(135deg,#111,#303030);
+    border-radius:20px;
+    color:white;
+    display:flex;
+    align-items:center;
+    padding:45px;
+    margin-bottom:35px;
+    overflow:hidden;
+}
+
+.hero-content{
+    max-width:700px;
+}
+
+.hero h1{
+    font-size:42px;
+    margin-bottom:15px;
+}
+
+.hero p{
+    color:#ddd;
+    font-size:17px;
+    line-height:1.6;
+}
+
+.hero-buttons{
+    margin-top:25px;
+    display:flex;
+    gap:12px;
+}
+
+.hero-btn{
+    padding:12px 20px;
+    border:none;
+    border-radius:25px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.hero-btn.primary{
+    background:white;
+    color:#111;
+}
+
+.hero-btn.secondary{
+    background:#444;
+    color:white;
+}
+
+/* SECTION */
+.section-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:30px 0 18px;
+}
+
+.section-title h2{
+    font-size:24px;
+}
+
+/* VIDEO GRID */
+.video-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:22px;
+}
+
+.video-card{
+    background:#fff;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid #eee;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.video-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+}
+
+.thumbnail{
+    width:100%;
+    aspect-ratio:16/9;
+    background:linear-gradient(135deg,#ddd,#aaa);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    color:#fff;
+    font-weight:bold;
+}
+
+.video-info{
+    padding:13px;
+}
+
+.video-title{
+    font-size:16px;
+    font-weight:700;
+    line-height:1.35;
+    margin-bottom:10px;
+}
+
+.channel{
+    display:flex;
+    align-items:center;
+    gap:9px;
+}
+
+.channel img{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    object-fit:contain;
+    border:1px solid #ddd;
+}
+
+.channel-name{
+    font-size:13px;
+    font-weight:bold;
+}
+
+.video-meta{
+    color:#777;
+    font-size:12px;
+    margin-top:5px;
+}
+
+/* SHORTS */
+.shorts-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:15px;
+}
+
+.short-card{
+    aspect-ratio:9/15;
+    border-radius:15px;
+    background:linear-gradient(145deg,#222,#777);
+    color:white;
+    display:flex;
+    align-items:flex-end;
+    padding:14px;
+    font-weight:bold;
+    overflow:hidden;
+}
+
+/* FOOTER */
+.footer{
+    margin-top:60px;
+    padding:35px 10px;
+    border-top:1px solid #ddd;
+    color:#777;
+    text-align:center;
+    line-height:2;
+}
+
+/* MOBILE */
+@media(max-width:1000px){
+
+    .video-grid{
+        grid-template-columns:repeat(2,1fr);
     }
 
-    body {
-      background: #ffffff;
-      color: #111111;
+    .shorts-grid{
+        grid-template-columns:repeat(4,1fr);
     }
 
-    /* HEADER */
-    header {
-      height: 65px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 0 22px;
-      border-bottom: 1px solid #e5e5e5;
-      position: sticky;
-      top: 0;
-      background: #ffffff;
-      z-index: 1000;
+}
+
+@media(max-width:700px){
+
+    .header{
+        height:auto;
+        min-height:65px;
+        padding:10px 12px;
+        gap:10px;
+        flex-wrap:wrap;
     }
 
-    .logo {
-      font-size: 27px;
-      font-weight: 800;
-      color: #111111;
-      white-space: nowrap;
+    .brand{
+        min-width:auto;
     }
 
-    .logo span {
-      color: #5b4cff;
+    .brand img{
+        width:38px;
+        height:38px;
     }
 
-    .search-box {
-      flex: 1;
-      max-width: 650px;
-      margin: auto;
-      display: flex;
+    .brand-name{
+        font-size:20px;
     }
 
-    .search-box input {
-      width: 100%;
-      height: 42px;
-      border: 1px solid #cccccc;
-      border-radius: 22px 0 0 22px;
-      padding: 0 18px;
-      font-size: 15px;
-      outline: none;
+    .search{
+        order:3;
+        flex-basis:100%;
+        max-width:none;
     }
 
-    .search-box button {
-      width: 60px;
-      border: none;
-      background: #111111;
-      color: white;
-      border-radius: 0 22px 22px 0;
-      cursor: pointer;
-      font-size: 17px;
+    .sidebar{
+        display:none;
     }
 
-    .login-btn {
-      border: none;
-      background: #111111;
-      color: white;
-      padding: 11px 19px;
-      border-radius: 22px;
-      cursor: pointer;
-      font-weight: bold;
+    .main{
+        margin-left:0;
+        width:100%;
+        padding:15px;
     }
 
-    /* MAIN */
-    .main {
-      display: flex;
-      min-height: calc(100vh - 65px);
+    .hero{
+        padding:25px;
+        min-height:230px;
     }
 
-    /* SIDEBAR */
-    .sidebar {
-      width: 220px;
-      padding: 20px 12px;
-      border-right: 1px solid #eeeeee;
-      position: fixed;
-      top: 65px;
-      bottom: 0;
-      background: #fff;
+    .hero h1{
+        font-size:30px;
     }
 
-    .sidebar a {
-      display: block;
-      text-decoration: none;
-      color: #222;
-      padding: 13px 15px;
-      margin-bottom: 4px;
-      border-radius: 10px;
-      font-size: 15px;
+    .video-grid{
+        grid-template-columns:1fr;
+        gap:16px;
     }
 
-    .sidebar a:hover {
-      background: #f1f1f1;
+    .shorts-grid{
+        grid-template-columns:repeat(2,1fr);
     }
 
-    .sidebar .active {
-      background: #eeeeee;
-      font-weight: bold;
+    .login{
+        padding:9px 14px;
     }
-
-    /* CONTENT */
-    .content {
-      margin-left: 220px;
-      width: calc(100% - 220px);
-      padding: 25px;
-    }
-
-    .category-bar {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 20px;
-    }
-
-    .category {
-      border: none;
-      background: #eeeeee;
-      padding: 9px 16px;
-      border-radius: 20px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .category:hover {
-      background: #dcdcdc;
-    }
-
-    /* HERO */
-    .hero {
-      background: linear-gradient(120deg, #111111, #302b63);
-      color: white;
-      border-radius: 18px;
-      padding: 35px;
-      margin-bottom: 30px;
-    }
-
-    .hero h1 {
-      font-size: 38px;
-      margin-bottom: 10px;
-    }
-
-    .hero p {
-      color: #dddddd;
-      margin-bottom: 20px;
-    }
-
-    .hero button {
-      border: none;
-      background: white;
-      color: #111;
-      padding: 12px 22px;
-      border-radius: 25px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    /* SECTION */
-    .section-title {
-      font-size: 23px;
-      margin: 25px 0 18px;
-    }
-
-    /* VIDEO GRID */
-    .video-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 22px;
-    }
-
-    .video-card {
-      cursor: pointer;
-    }
-
-    .thumbnail {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #222, #777);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 35px;
-      overflow: hidden;
-    }
-
-    .video-title {
-      font-size: 16px;
-      font-weight: bold;
-      margin-top: 10px;
-      line-height: 1.35;
-    }
-
-    .channel {
-      color: #666;
-      font-size: 13px;
-      margin-top: 7px;
-    }
-
-    .views {
-      color: #777;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    /* SHORTS */
-    .shorts-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 15px;
-    }
-
-    .short-card {
-      aspect-ratio: 9 / 16;
-      border-radius: 14px;
-      background: linear-gradient(160deg, #111111, #5b4cff);
-      color: white;
-      padding: 15px;
-      display: flex;
-      align-items: flex-end;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    /* FOOTER */
-    footer {
-      margin-top: 50px;
-      padding: 30px 10px;
-      border-top: 1px solid #eeeeee;
-      color: #777;
-      text-align: center;
-      font-size: 13px;
-    }
-
-    /* MOBILE */
-    @media (max-width: 1000px) {
-      .video-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .shorts-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    @media (max-width: 700px) {
-
-      header {
-        padding: 0 12px;
-        gap: 10px;
-      }
-
-      .logo {
-        font-size: 21px;
-      }
-
-      .search-box {
-        max-width: none;
-      }
-
-      .login-btn {
-        display: none;
-      }
-
-      .sidebar {
-        width: 65px;
-        padding: 10px 5px;
-      }
-
-      .sidebar a {
-        text-align: center;
-        font-size: 0;
-        padding: 14px 5px;
-      }
-
-      .sidebar a:first-letter {
-        font-size: 20px;
-      }
-
-      .content {
-        margin-left: 65px;
-        width: calc(100% - 65px);
-        padding: 15px;
-      }
-
-      .hero {
-        padding: 25px;
-      }
-
-      .hero h1 {
-        font-size: 28px;
-      }
-
-      .video-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 14px;
-      }
-
-      .shorts-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .section-title {
-        font-size: 20px;
-      }
-    }
-
-    @media (max-width: 430px) {
-      .video-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .shorts-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .search-box input {
-        font-size: 13px;
-      }
-    }
-  </style>
+}
+</style>
 </head>
 
 <body>
 
-  <!-- HEADER -->
-  <header>
+<header class="header">
 
-    <div class="logo">
-      UTube<span>X</span>
+    <div class="brand">
+        <img src="logo.png" alt="UTubeX Logo">
+        <div class="brand-name">UTubeX</div>
     </div>
 
-    <div class="search-box">
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Search videos..."
-        onkeyup="searchVideos()"
-      >
-
-      <button onclick="searchVideos()">🔍</button>
+    <div class="search">
+        <input id="searchInput" type="text" placeholder="Search videos...">
+        <button onclick="searchVideos()">🔍</button>
     </div>
 
-    <button class="login-btn" onclick="loginMessage()">
-      Login
-    </button>
+    <button class="login" onclick="login()">Login</button>
 
-  </header>
+</header>
 
+<div class="layout">
 
-  <div class="main">
+<aside class="sidebar">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <button class="side-btn active">⌂ Home</button>
+    <button class="side-btn">🔥 Trending</button>
+    <button class="side-btn">▶ Shorts</button>
+    <button class="side-btn">📺 Subscriptions</button>
+    <button class="side-btn">▣ Library</button>
+    <button class="side-btn">♡ Liked Videos</button>
+    <button class="side-btn">⬆ Upload</button>
 
-      <a href="#" class="active">🏠 Home</a>
+</aside>
 
-      <a href="#">🔥 Trending</a>
+<main class="main">
 
-      <a href="#">🎬 Shorts</a>
-
-      <a href="#">📺 Subscriptions</a>
-
-      <a href="#">📚 Library</a>
-
-      <a href="#">❤️ Liked Videos</a>
-
-      <a href="#">⬆️ Upload</a>
-
-    </aside>
-
-
-    <!-- CONTENT -->
-    <main class="content">
-
-      <!-- CATEGORY -->
-      <div class="category-bar">
-
+    <div class="categories">
         <button class="category">All</button>
         <button class="category">Music</button>
         <button class="category">Movies</button>
         <button class="category">Gaming</button>
         <button class="category">News</button>
         <button class="category">Comedy</button>
-        <button class="category">Sports</button>
-        <button class="category">Education</button>
+        <button class="category">Entertainment</button>
+    </div>
 
-      </div>
+    <section class="hero">
 
+        <div class="hero-content">
 
-      <!-- HERO -->
-      <section class="hero">
+            <h1>Welcome to UTubeX</h1>
 
-        <h1>Welcome to UTubeX</h1>
+            <p>
+                Watch, upload and share amazing videos.
+                Discover new creators and enjoy entertainment
+                all in one place.
+            </p>
 
-        <p>
-          Watch, upload and share your favorite videos.
-        </p>
+            <div class="hero-buttons">
+                <button class="hero-btn primary" onclick="startWatching()">
+                    Start Watching
+                </button>
 
-        <button onclick="startWatching()">
-          Start Watching
-        </button>
-
-      </section>
-
-
-      <!-- VIDEOS -->
-      <h2 class="section-title">
-        Recommended Videos
-      </h2>
-
-      <div class="video-grid" id="videoGrid">
-
-
-        <div class="video-card">
-
-          <div class="thumbnail">
-            ▶
-          </div>
-
-          <div class="video-title">
-            Amazing New Video | UTubeX
-          </div>
-
-          <div class="channel">
-            UTubeX Creator
-          </div>
-
-          <div class="views">
-            125K views • 2 days ago
-          </div>
+                <button class="hero-btn secondary" onclick="uploadVideo()">
+                    Upload Video
+                </button>
+            </div>
 
         </div>
 
+    </section>
 
-        <div class="video-card">
+    <div class="section-title">
+        <h2>Recommended Videos</h2>
+    </div>
 
-          <div class="thumbnail">
-            ▶
-          </div>
+    <section class="video-grid">
 
-          <div class="video-title">
-            Best Gaming Moments
-          </div>
+        <article class="video-card">
+            <div class="thumbnail">▶</div>
 
-          <div class="channel">
-            Gaming World
-          </div>
+            <div class="video-info">
 
-          <div class="views">
-            89K views • 1 day ago
-          </div>
+                <div class="video-title">
+                    Welcome to UTubeX
+                </div>
 
-        </div>
+                <div class="channel">
+                    <img src="logo.png" alt="UTubeX">
+                    <div>
+                        <div class="channel-name">UTubeX</div>
+                        <div class="video-meta">0 views • Just now</div>
+                    </div>
+                </div>
 
+            </div>
+        </article>
 
-        <div class="video-card">
+        <article class="video-card">
+            <div class="thumbnail">▶</div>
 
-          <div class="thumbnail">
-            ▶
-          </div>
+            <div class="video-info">
 
-          <div class="video-title">
-            New Music Video 2026
-          </div>
+                <div class="video-title">
+                    Discover Amazing Videos
+                </div>
 
-          <div class="channel">
-            Music Studio
-          </div>
+                <div class="channel">
+                    <img src="logo.png" alt="UTubeX">
+                    <div>
+                        <div class="channel-name">UTubeX</div>
+                        <div class="video-meta">0 views • Just now</div>
+                    </div>
+                </div>
 
-          <div class="views">
-            540K views • 5 days ago
-          </div>
+            </div>
+        </article>
 
-        </div>
+        <article class="video-card">
+            <div class="thumbnail">▶</div>
 
+            <div class="video-info">
 
-        <div class="video-card">
+                <div class="video-title">
+                    New Creators on UTubeX
+                </div>
 
-          <div class="thumbnail">
-            ▶
-          </div>
+                <div class="channel">
+                    <img src="logo.png" alt="UTubeX">
+                    <div>
+                        <div class="channel-name">UTubeX</div>
+                        <div class="video-meta">0 views • Just now</div>
+                    </div>
+                </div>
 
-          <div class="video-title">
-            Funny Comedy Video
-          </div>
+            </div>
+        </article>
 
-          <div class="channel">
-            Comedy House
-          </div>
+        <article class="video-card">
+            <div class="thumbnail">▶</div>
 
-          <div class="views">
-            210K views • 3 days ago
-          </div>
+            <div class="video-info">
 
-        </div>
+                <div class="video-title">
+                    Watch & Share
+                </div>
 
+                <div class="channel">
+                    <img src="logo.png" alt="UTubeX">
+                    <div>
+                        <div class="channel-name">UTubeX</div>
+                        <div class="video-meta">0 views • Just now</div>
+                    </div>
+                </div>
 
-        <div class="video-card">
+            </div>
+        </article>
 
-          <div class="thumbnail">
-            ▶
-          </div>
+    </section>
 
-          <div class="video-title">
-            Latest Movie Updates
-          </div>
+    <div class="section-title">
+        <h2>Shorts</h2>
+    </div>
 
-          <div class="channel">
-            Cinema News
-          </div>
+    <section class="shorts-grid">
 
-          <div class="views">
-            75K views • 6 hours ago
-          </div>
+        <div class="short-card">Short Video</div>
+        <div class="short-card">Funny Video</div>
+        <div class="short-card">Music Short</div>
+        <div class="short-card">Gaming Short</div>
+        <div class="short-card">Movie Short</div>
+        <div class="short-card">Trending Short</div>
 
-        </div>
+    </section>
 
+    <footer class="footer">
 
-        <div class="video-card">
+        <strong>UTubeX</strong><br>
+        Watch • Upload • Share<br>
+        © 2026 UTubeX. All rights reserved.
 
-          <div class="thumbnail">
-            ▶
-          </div>
+    </footer>
 
-          <div class="video-title">
-            Free Fire Gameplay
-          </div>
+</main>
 
-          <div class="channel">
-            Saurya Gaming
-          </div>
+</div>
 
-          <div class="views">
-            32K views • 4 hours ago
-          </div>
+<script>
 
-        </div>
+function login(){
+    alert("Login system will be connected in the next step.");
+}
 
+function uploadVideo(){
+    alert("Video upload system will be connected in the next step.");
+}
 
-        <div class="video-card">
+function startWatching(){
+    window.scrollTo({
+        top:500,
+        behavior:"smooth"
+    });
+}
 
-          <div class="thumbnail">
-            ▶
-          </div>
+function searchVideos(){
 
-          <div class="video-title">
-            Amazing Travel Vlog
-          </div>
+    const input = document.getElementById("searchInput");
+    const query = input.value.trim();
 
-          <div class="channel">
-            Travel Creator
-          </div>
-
-          <div class="views">
-            61K views • 1 day ago
-          </div>
-
-        </div>
-
-
-        <div class="video-card">
-
-          <div class="thumbnail">
-            ▶
-          </div>
-
-          <div class="video-title">
-            Learn Something New
-          </div>
-
-          <div class="channel">
-            Education Hub
-          </div>
-
-          <div class="views">
-            98K views • 2 days ago
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- SHORTS -->
-      <h2 class="section-title">
-        Shorts
-      </h2>
-
-      <div class="shorts-grid">
-
-        <div class="short-card">
-          Funny Short Video
-        </div>
-
-        <div class="short-card">
-          Gaming Short
-        </div>
-
-        <div class="short-card">
-          Music Short
-        </div>
-
-        <div class="short-card">
-          Comedy Short
-        </div>
-
-        <div class="short-card">
-          Trending Short
-        </div>
-
-        <div class="short-card">
-          Viral Moment
-        </div>
-
-      </div>
-
-
-      <!-- FOOTER -->
-      <footer>
-
-        © 2026 UTubeX.com — Watch, Upload & Share Videos
-
-      </footer>
-
-    </main>
-
-  </div>
-
-
-  <!-- JAVASCRIPT -->
-  <script>
-
-    function loginMessage() {
-
-      alert(
-        "UTubeX Login System will be connected in the next step."
-      );
-
+    if(query === ""){
+        alert("Please enter a video name.");
+        return;
     }
 
+    alert("Searching for: " + query);
+}
 
-    function startWatching() {
-
-      window.scrollTo({
-        top: 400,
-        behavior: "smooth"
-      });
-
-    }
-
-
-    function searchVideos() {
-
-      const input =
-        document.getElementById("searchInput")
-        .value
-        .toLowerCase();
-
-      const cards =
-        document.querySelectorAll(".video-card");
-
-      cards.forEach(function(card) {
-
-        const title =
-          card.innerText.toLowerCase();
-
-        if (title.includes(input)) {
-
-          card.style.display = "block";
-
-        } else {
-
-          card.style.display = "none";
-
-        }
-
-      });
-
-    }
-
-  </script>
+</script>
 
 </body>
-        </html>
+</html>
