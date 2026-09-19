@@ -1,168 +1,213 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>UTubeX</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>
-*{box-sizing:border-box}body{margin:0;font:14px Arial;background:#fff;color:#111}button,input,textarea,select{font:inherit}button{cursor:pointer;border:0}header{height:60px;border-bottom:1px solid #ddd;display:flex;align-items:center;gap:12px;padding:8px 15px;position:sticky;top:0;background:#fff;z-index:5}.brand{font-size:24px;font-weight:800}.brand b{color:#f03}.search{flex:1;max-width:650px;border:1px solid #ccc;border-radius:22px;padding:11px 16px}.btn{background:#065fd4;color:#fff;padding:10px 16px;border-radius:7px;font-weight:bold}.light{background:#eee;color:#111}.layout{display:flex}aside{width:215px;border-right:1px solid #ddd;min-height:calc(100vh - 60px);padding:12px 9px;position:sticky;top:60px;height:calc(100vh - 60px)}nav{padding:12px;border-radius:8px;margin:2px 0;cursor:pointer}nav:hover,nav.on{background:#eee}.main{flex:1;padding:18px;min-width:0}.tabs{display:flex;gap:8px;overflow:auto;margin-bottom:18px}.tab{padding:9px 15px;border-radius:8px;background:#eee;white-space:nowrap}.hero{background:#eef5ff;padding:25px;border-radius:14px;margin-bottom:22px}.hero h1{margin:0 0 8px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}.card{border:1px solid #ddd;border-radius:10px;overflow:hidden;cursor:pointer}.pic{height:110px;background:#eee;display:flex;align-items:center;justify-content:center;color:#777}.ct{padding:11px}.small{color:#666;font-size:12px}.modal{display:none;position:fixed;inset:0;background:#0008;z-index:20;padding:10px;overflow:auto}.box{background:#fff;max-width:800px;margin:15px auto;padding:20px;border-radius:13px}.head{display:flex;justify-content:space-between;align-items:center}.close{border-radius:50%;background:#eee;width:34px;height:34px;font-size:20px}.field{margin:12px 0}.field label{display:block;font-weight:bold;margin-bottom:6px}.input,.area,.select{width:100%;padding:11px;border:1px solid #ccc;border-radius:7px;background:#fff}.area{min-height:110px}.file{width:100%;padding:18px;border:2px dashed #bbb;border-radius:10px;background:#fafafa}.video{display:none;width:100%;max-height:360px;background:#000;border-radius:8px;margin-top:12px}.thumb{display:none;width:260px;max-width:100%;margin-top:10px;border-radius:8px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.status{display:none;padding:11px;background:#eef7ee;border-radius:7px;margin-top:10px}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}.email{font-size:11px;color:#666;max-width:130px;overflow:hidden;text-overflow:ellipsis}@media(max-width:700px){aside{display:none}.main{padding:12px}.search{display:none}.two{grid-template-columns:1fr}}
-</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UTubeX — Watch, Upload & Share</title>
+<meta name="description" content="UTubeX — Watch, upload and share videos.">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#fff;color:#111}
+header{height:64px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:18px;padding:0 20px;position:sticky;top:0;background:#fff;z-index:5}
+.logo{font-size:25px;font-weight:900;color:#536dff}.logo b{color:#9b4dff}
+.search{flex:1;max-width:650px;margin:auto;display:flex;border:1px solid #ddd;border-radius:24px;overflow:hidden}
+.search input{flex:1;border:0;padding:12px 16px;outline:0;font-size:15px}.search button{border:0;background:#f4f4f4;padding:0 20px}
+button{cursor:pointer;border:0;border-radius:10px;padding:10px 15px;font-weight:700}
+.primary{background:#536dff;color:#fff}.light{background:#f1f3f7}
+#auth{white-space:nowrap}.layout{display:flex}.side{width:220px;border-right:1px solid #eee;padding:18px;min-height:calc(100vh - 64px);position:fixed;background:#fff}
+.side button{display:block;width:100%;text-align:left;margin:5px 0;background:#fff}.side button:hover{background:#f3f4f8}
+.main{margin-left:220px;width:calc(100% - 220px);padding:22px}
+.hero{padding:28px;border-radius:20px;background:linear-gradient(120deg,#eef1ff,#faf5ff);margin-bottom:25px}
+.hero h1{font-size:34px;margin:0 0 8px}.hero p{color:#666}
+.tabs{display:flex;gap:10px;overflow:auto;margin-bottom:22px}.tabs button{white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.card{border:1px solid #eee;border-radius:15px;overflow:hidden;background:#fff;box-shadow:0 3px 15px #00000008}
+.thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:#eee}.info{padding:12px}.title{font-weight:800;line-height:1.3}.meta{font-size:12px;color:#777;margin-top:7px}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:20;align-items:center;justify-content:center;padding:15px}
+.box{background:#fff;border-radius:18px;padding:22px;width:min(560px,100%);max-height:92vh;overflow:auto}
+.box h2{margin-top:0}.box input,.box textarea,.box select{width:100%;padding:12px;margin:7px 0 12px;border:1px solid #ddd;border-radius:9px;font-size:15px}
+video{width:100%;border-radius:14px;background:#000}.close{float:right;background:#eee;border-radius:50%;padding:7px 11px}
+.empty{text-align:center;padding:50px;color:#777}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:750px){.side{display:none}.main{margin-left:0;width:100%;padding:14px}header{padding:0 10px;gap:8px}.logo{font-size:20px}.search{max-width:none}.search input{width:60px}.hero h1{font-size:27px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.info{padding:9px}.title{font-size:14px}}
+</style>
+</head>
+<body>
 
-<header><div class="brand">UTube<span>X</span></div><input id="search" class="search" placeholder="Search videos, movies, music..."><div id="auth"><button class="btn" onclick="loginOpen()">Login</button></div></header>
+<header>
+<div class="logo">UTube<span>X</span></div>
+<div class="search"><input id="q" placeholder="Search videos..."><button onclick="load()">🔍</button></div>
+<div id="auth"><button class="primary" onclick="openBox('login')">Login</button></div>
+</header>
 
-<div class="layout"><aside>
-<nav class="on" onclick="home()">⌂ <b>Home</b></nav>
-<nav onclick="section('Shorts')">▣ <b>Shorts</b></nav>
-<nav onclick="section('Trending')">↗ <b>Trending</b></nav>
-<nav onclick="section('Subscriptions')">★ <b>Subscriptions</b></nav>
-<hr>
-<nav onclick="uploadOpen()">＋ <b>Upload</b></nav>
-<nav onclick="channel()">◉ <b>U Channel</b></nav>
-<nav onclick="studio()">▤ <b>Creator Studio</b></nav>
-<nav onclick="videos()">▣ <b>Your Videos</b></nav>
-<hr>
-<nav onclick="section('Music')">♫ <b>Music</b></nav>
-<nav onclick="section('Movies')">▣ <b>Movies</b></nav>
-<nav onclick="section('Live')">● <b>Live</b></nav>
-<nav onclick="section('Gaming')">◆ <b>Gaming</b></nav>
-<hr>
-<nav onclick="section('Settings')">⚙ <b>Settings</b></nav>
+<div class="layout">
+<aside class="side">
+<button onclick="load()">⌂ Home</button>
+<button onclick="filter('Trending')">🔥 Trending</button>
+<button onclick="filter('Music')">🎵 Music</button>
+<button onclick="filter('Movies')">🎬 Movies</button>
+<button onclick="filter('Gaming')">🎮 Gaming</button>
+<button onclick="filter('News')">📰 News</button>
+<button onclick="filter('Education')">📚 Education</button>
+<button onclick="openBox('upload')">⬆ Upload</button>
+<button onclick="channel()">👤 My Channel</button>
 </aside>
 
-<main class="main"><div class="tabs">
-<button class="tab" onclick="home()">All</button><button class="tab" onclick="section('Music')">Music</button><button class="tab" onclick="section('Movies')">Movies</button><button class="tab" onclick="section('Gaming')">Gaming</button><button class="tab" onclick="section('Live')">Live</button><button class="tab" onclick="section('Shorts')">Shorts</button>
+<main class="main">
+<section class="hero">
+<h1>Watch. Upload. Share.</h1>
+<p>Welcome to UTubeX — your new video community.</p>
+<button class="primary" onclick="openBox('upload')">＋ Upload Video</button>
+</section>
+
+<div class="tabs">
+<button onclick="load()">All</button><button onclick="filter('Trending')">Trending</button>
+<button onclick="filter('Music')">Music</button><button onclick="filter('Movies')">Movies</button>
+<button onclick="filter('Gaming')">Gaming</button><button onclick="filter('Education')">Education</button>
 </div>
 
-<div id="homePage"><div class="hero"><h1>Welcome to UTubeX</h1><p>Watch, upload and share videos.</p><button class="btn" onclick="uploadOpen()">＋ Upload Video</button></div><h2>Trending</h2><div id="trend" class="grid"></div><h2>New Uploads</h2><div id="list" class="grid"></div></div>
-<div id="sectionPage" style="display:none"><h1 id="title">Videos</h1><div id="sectionList" class="grid"></div></div>
-</main></div>
+<h2 id="heading">Latest Videos</h2>
+<div id="feed" class="grid"><div class="empty">Loading videos...</div></div>
+</main>
+</div>
 
-<div id="login" class="modal"><div class="box"><div class="head"><h2>Login to UTubeX</h2><button class="close" onclick="closeM('login')">×</button></div><div class="field"><label>Email</label><input id="email" class="input" type="email"></div><div class="field"><label>Password</label><input id="pass" class="input" type="password"></div><div id="loginMsg" class="status"></div><div class="actions"><button class="light" onclick="closeM('login')">Cancel</button><button class="btn" onclick="signup()">Create Account</button><button class="btn" onclick="signin()">Login</button></div></div></div>
-
-<div id="upload" class="modal"><div class="box"><div class="head"><h2>Upload Video</h2><button class="close" onclick="closeM('upload')">×</button></div>
-
-<div class="file"><b>Select Video from Gallery</b><br><input id="videoFile" type="file" accept="video/*"></div><video id="vp" class="video" controls></video>
-
-<div class="field"><label>Title</label><input id="vt" class="input" maxlength="100" placeholder="Video title"></div>
-<div class="field"><label>Description</label><textarea id="vd" class="area" maxlength="5000" placeholder="Video description"></textarea></div>
-
-<div class="field"><label>Thumbnail</label><input id="tf" class="input" type="file" accept="image/*"><img id="tp" class="thumb"></div>
-
-<div class="two"><div class="field"><label>Category</label><select id="cat" class="select"><option>Entertainment</option><option>Music</option><option>Movies</option><option>Gaming</option><option>Education</option><option>News</option><option>Sports</option><option>Comedy</option><option>People & Blogs</option></select></div><div class="field"><label>Language</label><select id="lang" class="select"><option>Hindi</option><option>English</option><option>Bhojpuri</option><option>Other</option></select></div></div>
-
-<div class="field"><label>Tags</label><input id="tags" class="input" placeholder="music, movie, hindi"></div>
-<div class="field"><label>Playlist</label><select id="playlist" class="select"><option>None</option><option>My Videos</option><option>Music</option><option>Movies</option><option>Shorts</option></select></div>
-
-<div class="field"><label>Audience</label><select id="aud" class="select"><option value="general">Not made for kids</option><option value="kids">Made for kids</option></select></div>
-<div class="field"><label>Age Restriction</label><select id="age" class="select"><option>No age restriction</option><option>18+ restriction</option></select></div>
-<div class="field"><label>Visibility</label><select id="vis" class="select"><option>Public</option><option>Unlisted</option><option>Private</option></select></div>
-
-<div class="two"><div class="field"><label>Recording Date</label><input id="date" class="input" type="date"></div><div class="field"><label>Location</label><input id="loc" class="input" placeholder="Optional"></div></div>
-
-<div class="field"><label>Subtitles / Captions</label><input id="sub" class="input" type="file" accept=".srt,.vtt,.txt"></div>
-<div class="field"><label>Comments</label><select id="comments" class="select"><option>Allow all comments</option><option>Hold inappropriate comments</option><option>Disable comments</option></select></div>
-
-<div class="field"><label>Creator Verification</label><div class="small">Account verification can be connected to a real verification system later. Fake verification is not created.</div></div>
-<div id="uploadMsg" class="status"></div>
-<div class="actions"><button class="light" onclick="closeM('upload')">Cancel</button><button class="btn" onclick="publish()">Publish Video</button></div>
+<!-- LOGIN -->
+<div class="modal" id="login">
+<div class="box"><button class="close" onclick="closeBox('login')">×</button>
+<h2>Welcome to UTubeX</h2>
+<input id="email" type="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<button class="primary" style="width:100%" onclick="login()">Login</button>
+<button class="light" style="width:100%;margin-top:8px" onclick="signup()">Create Account</button>
+<p id="msg"></p>
 </div></div>
 
-<div id="channel" class="modal"><div class="box"><div class="head"><h2>U Channel</h2><button class="close" onclick="closeM('channel')">×</button></div><div id="channelText"></div></div></div>
+<!-- UPLOAD -->
+<div class="modal" id="upload">
+<div class="box"><button class="close" onclick="closeBox('upload')">×</button>
+<h2>Upload Video</h2>
+<input id="vf" type="file" accept="video/*">
+<input id="tf" type="file" accept="image/*">
+<input id="title" placeholder="Video title">
+<textarea id="desc" rows="4" placeholder="Description"></textarea>
+<select id="cat"><option>Entertainment</option><option>Music</option><option>Movies</option><option>Gaming</option><option>Education</option><option>News</option><option>Sports</option></select>
+<input id="tags" placeholder="Tags (comma separated)">
+<select id="vis"><option>Public</option><option>Unlisted</option><option>Private</option></select>
+<button class="primary" style="width:100%" onclick="upload()">Publish Video</button>
+<p id="upmsg"></p>
+</div></div>
 
 <script>
+/* ===== UTubeX SUPABASE SETTINGS ===== */
 const SUPABASE_URL="https://ddwokezrocpzfhxgltbc.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_6V6qmPBuNC8CaAu3zbdnFg_SdXDZEk0";
-const REDIRECT_URL="https://utubex.github.io/UTubeX/";
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-let vids=JSON.parse(localStorage.getItem("utubexVideos")||"[]");
+/* ==================================== */
 
-const $=x=>document.getElementById(x);
-function closeM(x){$(x).style.display="none"}
-function loginOpen(){$("login").style.display="block"}
-function msg(id,t){$(id).textContent=t;$(id).style.display="block"}
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let all=[];
 
+async function authUI(){
+ const {data:{session}}=await sb.auth.getSession();
+ const a=document.getElementById("auth");
+ if(session)a.innerHTML='<button class="light" onclick="logout()">Logout</button>';
+ else a.innerHTML='<button class="primary" onclick="openBox(\'login\')">Login</button>';
+}
+async function login(){
+ let e=email.value,p=pass.value;
+ const {error}=await sb.auth.signInWithPassword({email:e,password:p});
+ msg.textContent=error?error.message:"Login successful!";
+ if(!error){closeBox("login");authUI();load()}
+}
 async function signup(){
-let e=$("email").value.trim(),p=$("pass").value;
-if(!e||!p)return msg("loginMsg","Email और password भरें.");
-let {data,error}=await sb.auth.signUp({email:e,password:p,options:{emailRedirectTo:REDIRECT_URL}});
-if(error)return msg("loginMsg",error.message);
-if(data.session){closeM("login");authUI(data.session)}else msg("loginMsg","Account created. Email verify करके Login करें.");
+ let e=email.value,p=pass.value;
+ const {error}=await sb.auth.signUp({email:e,password:p,options:{emailRedirectTo:location.origin+location.pathname}});
+ msg.textContent=error?error.message:"Account created. Check your email.";
 }
+async function logout(){await sb.auth.signOut();authUI();load()}
 
-async function signin(){
-let {data,error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("pass").value});
-if(error)return msg("loginMsg",error.message);
-closeM("login");authUI(data.session);
+async function load(){
+ heading.textContent="Latest Videos";
+ const term=q.value.trim().toLowerCase();
+ let {data,error}=await sb.from("videos").select("*").eq("visibility","Public").eq("status","published").order("created_at",{ascending:false}).limit(100);
+ if(error){feed.innerHTML='<div class="empty">'+error.message+"</div>";return}
+ all=data||[];
+ if(term)all=all.filter(v=>(v.title+" "+v.description+" "+v.tags).toLowerCase().includes(term));
+ show(all);
 }
-
-async function logout(){await sb.auth.signOut();authUI(null)}
-
-function authUI(s){
-$("auth").innerHTML=s?
-'<span class="email">'+s.user.email+'</span><button class="light" onclick="uploadOpen()">＋ Upload</button><button class="btn" onclick="logout()">Logout</button>':
-'<button class="btn" onclick="loginOpen()">Login</button>';
+function filter(c){
+ heading.textContent=c;
+ if(c==="Trending"){show([...all].sort((a,b)=>(b.views||0)-(a.views||0)));return}
+ show(all.filter(v=>v.category===c));
 }
-
-async function uploadOpen(){
-let {data}=await sb.auth.getSession();
-if(!data.session)return loginOpen();
-$("upload").style.display="block";
+function show(list){
+ if(!list.length){feed.innerHTML='<div class="empty">No videos found.</div>';return}
+ feed.innerHTML=list.map(v=>`
+ <article class="card" onclick="watch('${v.id}')">
+ <img class="thumb" src="${v.thumbnail_url||'https://placehold.co/640x360?text=UTubeX'}">
+ <div class="info"><div class="title">${esc(v.title)}</div>
+ <div class="meta">${esc(v.category)} • ${v.views||0} views • ${new Date(v.created_at).toLocaleDateString()}</div></div>
+ </article>`).join("");
 }
-
-$("videoFile").onchange=function(){
-let f=this.files[0];if(!f)return;
-$("vp").src=URL.createObjectURL(f);$("vp").style.display="block";
-if(!$("vt").value)$("vt").value=f.name.replace(/\.[^/.]+$/,"").replace(/[_-]/g," ");
-};
-
-$("tf").onchange=function(){
-let f=this.files[0];if(!f)return;
-$("tp").src=URL.createObjectURL(f);$("tp").style.display="block";
-};
-
-function publish(){
-let f=$("videoFile").files[0];
-if(!f)return msg("uploadMsg","Gallery से वीडियो चुनें.");
-if(!$("vt").value.trim())return msg("uploadMsg","Title डालें.");
-
-let v={
-id:Date.now(),title:$("vt").value.trim(),description:$("vd").value.trim(),
-category:$("cat").value,language:$("lang").value,tags:$("tags").value,
-playlist:$("playlist").value,audience:$("aud").value,age:$("age").value,
-visibility:$("vis").value,date:$("date").value,location:$("loc").value,
-file:f.name,created:new Date().toISOString()
-};
-
-vids.unshift(v);localStorage.setItem("utubexVideos",JSON.stringify(vids));render();
-msg("uploadMsg","Video UTubeX में upload list में जोड़ दिया गया है.");
-setTimeout(()=>closeM("upload"),1200);
+async function watch(id){
+ const v=all.find(x=>x.id===id);if(!v)return;
+ await sb.from("videos").update({views:(v.views||0)+1}).eq("id",id);
+ document.body.insertAdjacentHTML("beforeend",`
+ <div class="modal" id="watchbox" style="display:flex"><div class="box">
+ <button class="close" onclick="document.getElementById('watchbox').remove()">×</button>
+ <video src="${v.video_url}" controls autoplay></video>
+ <h2>${esc(v.title)}</h2><p>${esc(v.description||"")}</p>
+ <div class="meta">${v.views+1||1} views • ${esc(v.category)}</div>
+ <div class="actions"><button class="primary" onclick="like('${v.id}')">👍 Like</button><button class="light" onclick="comment('${v.id}')">💬 Comment</button><button class="light" onclick="navigator.clipboard.writeText(location.href+'?v=${v.id}')">🔗 Share</button></div>
+ </div></div>`);
 }
-
-function card(v){
-return '<div class="card" onclick="view('+v.id+')"><div class="pic">VIDEO</div><div class="ct"><b>'+esc(v.title)+'</b><p class="small">'+esc(v.category)+' • '+esc(v.visibility)+'</p><p class="small">'+esc(v.file)+'</p></div></div>';
+async function like(id){
+ const {data:{user}}=await sb.auth.getUser();
+ if(!user){alert("Please login first.");return}
+ const {error}=await sb.from("video_likes").insert({video_id:id,user_id:user.id});
+ alert(error?"Already liked or unavailable":"Liked!");
 }
-
-function render(){
-$("list").innerHTML=vids.length?vids.map(card).join(""):'<div class="small">No uploads yet.</div>';
-$("trend").innerHTML=vids.slice(0,4).map(card).join("")||'<div class="small">No trending videos yet.</div>';
+async function comment(id){
+ const {data:{user}}=await sb.auth.getUser();
+ if(!user){alert("Please login first.");return}
+ let text=prompt("Write your comment:");
+ if(!text)return;
+ const {error}=await sb.from("video_comments").insert({video_id:id,user_id:user.id,comment:text});
+ alert(error?error.message:"Comment added!");
 }
-
-function view(id){let v=vids.find(x=>x.id===id);if(v)alert("Title: "+v.title+"\nCategory: "+v.category+"\nVisibility: "+v.visibility+"\nVideo: "+v.file)}
-
-function home(){$("homePage").style.display="block";$("sectionPage").style.display="none";render()}
-
-function section(n){
-$("homePage").style.display="none";$("sectionPage").style.display="block";$("title").textContent=n;
-$("sectionList").innerHTML=vids.length?vids.map(card).join(""):'<div class="small">इस section में अभी video नहीं है.</div>';
+async function upload(){
+ const {data:{user}}=await sb.auth.getUser();
+ if(!user){alert("Login first.");return}
+ const file=vf.files[0],img=tf.files[0];
+ if(!file){upmsg.textContent="Please select a video.";return}
+ upmsg.textContent="Uploading video...";
+ const path=user.id+"/"+Date.now()+"_"+file.name;
+ let r=await sb.storage.from("videos").upload(path,file,{upsert:false});
+ if(r.error){upmsg.textContent=r.error.message;return}
+ const videoURL=sb.storage.from("videos").getPublicUrl(path).data.publicUrl;
+ let thumbURL="";
+ if(img){
+  const ip=user.id+"/"+Date.now()+"_"+img.name;
+  let ir=await sb.storage.from("thumbnails").upload(ip,img,{upsert:false});
+  if(!ir.error)thumbURL=sb.storage.from("thumbnails").getPublicUrl(ip).data.publicUrl;
+ }
+ let {error}=await sb.from("videos").insert({
+  user_id:user.id,title:title.value.trim(),description:desc.value,
+  video_url:videoURL,thumbnail_url:thumbURL,category:cat.value,
+  language:"Hindi",tags:tags.value,visibility:vis.value,status:"published"
+ });
+ if(error){upmsg.textContent=error.message;return}
+ upmsg.textContent="Published successfully!";
+ setTimeout(()=>{closeBox("upload");load()},800);
 }
-
-function videos(){section("Your Videos")}
-function studio(){section("Creator Studio")}
-function channel(){$("channel").style.display="block";sb.auth.getSession().then(({data})=>$("channelText").innerHTML=data.session?"Signed in as <b>"+esc(data.session.user.email)+"</b><br><br>Your UTubeX channel is ready.":"Please login first.")}
-function esc(x){return String(x).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-
-$("search").oninput=function(){
-let q=this.value.toLowerCase();if(!q)return home();
-$("homePage").style.display="none";$("sectionPage").style.display="block";$("title").textContent="Search Results";
-let r=vids.filter(v=>(v.title+" "+v.description+" "+v.tags+" "+v.category).toLowerCase().includes(q));
-$("sectionList").innerHTML=r.length?r.map(card).join(""):'<div class="small">No videos found.</div>';
-};
-
-sb.auth.getSession().then(({data})=>authUI(data.session));
-sb.auth.onAuthStateChange((e,s)=>authUI(s));
-render();
-</script></body></html>
+async function channel(){
+ const {data:{user}}=await sb.auth.getUser();
+ if(!user){openBox("login");return}
+ alert("Your UTubeX Channel\\nUser ID: "+user.id);
+}
+function openBox(x){document.getElementById(x).style.display="flex"}
+function closeBox(x){document.getElementById(x).style.display="none"}
+function esc(x){return String(x||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+sb.auth.onAuthStateChange(()=>authUI());
+authUI();load();
+</script>
+</body>
+</html>
