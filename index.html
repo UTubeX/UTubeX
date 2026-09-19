@@ -112,4 +112,254 @@
 <option>Hindi</option>
 <option>English</option>
 <option>Bhojpuri</option>
-<option>Other</
+<option>Other</option>
+</select>
+</div>
+</div>
+
+<label>Tags</label>
+<input class="input" id="tags" maxlength="500" placeholder="Example: movie, music, hindi">
+
+<div class="row">
+<div>
+<label>Audience</label>
+<select class="select" id="audience">
+<option value="general">General audience</option>
+<option value="kids">Made for kids</option>
+</select>
+</div>
+
+<div>
+<label>Visibility</label>
+<select class="select" id="visibility">
+<option value="public">Public</option>
+<option value="unlisted">Unlisted</option>
+<option value="private">Private</option>
+</select>
+</div>
+</div>
+
+<div class="msg" id="uploadMsg"></div>
+
+<button class="btn" onclick="publishVideo()">Publish Video</button>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL="https://ddwokezrocpzfhxgltbc.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_6V6qmPBuNC8CaAu3zbdnFg_SdXDZEk0";
+const REDIRECT_URL="https://utubex.github.io/UTubeX/";
+
+const supabaseClient=window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_PUBLISHABLE_KEY
+);
+
+function openLogin(){
+document.getElementById("loginModal").style.display="block";
+}
+
+function openUpload(){
+supabaseClient.auth.getSession().then(({data})=>{
+if(data.session)document.getElementById("uploadModal").style.display="block";
+else openLogin();
+});
+}
+
+function closeModal(id){
+document.getElementById(id).style.display="none";
+}
+
+function showMsg(id,text,error=false){
+const e=document.getElementById(id);
+e.textContent=text;
+e.style.display="block";
+e.className=error?"msg danger":"msg";
+}
+
+async function signupUser(){
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value;
+
+if(!email||!password){
+showMsg("loginMsg","Email और password भरें.",true);return;
+}
+
+const {data,error}=await supabaseClient.auth.signUp({
+email,
+password,
+options:{emailRedirectTo:REDIRECT_URL}
+});
+
+if(error){
+showMsg("loginMsg",error.message,true);return;
+}
+
+if(data.session){
+closeModal("loginModal");
+updateAuthUI(data.session);
+}else{
+showMsg("loginMsg","Account created. Email verify करके फिर Login करें.");
+}
+}
+
+async function loginUser(){
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value;
+
+const {data,error}=await supabaseClient.auth.signInWithPassword({
+email,password
+});
+
+if(error){
+showMsg("loginMsg",error.message,true);return;
+}
+
+closeModal("loginModal");
+updateAuthUI(data.session);
+}
+
+async function logoutUser(){
+await supabaseClient.auth.signOut();
+updateAuthUI(null);
+}
+
+function updateAuthUI(session){
+const area=document.getElementById("authArea");
+
+if(session){
+const email=session.user.email||"User";
+area.innerHTML=
+'<button class="topbtn" onclick="openUpload()">Upload Video</button>'+
+'<button class="topbtn" onclick="logoutUser()">Logout</button>';
+}else{
+area.innerHTML='<button class="topbtn" onclick="openLogin()">Login</button>';
+}
+}
+
+document.getElementById("videoFile").addEventListener("change",function(){
+const file=this.files[0];
+if(!file)return;
+
+const video=document.getElementById("videoPreview");
+video.src=URL.createObjectURL(file);
+video.style.display="block";
+
+if(!document.getElementById("videoTitle").value){
+document.getElementById("videoTitle").value=
+file.name.replace(/\.[^/.]+$/,"").replace(/[_-]/g," ");
+}
+});
+
+document.getElementById("thumbnailFile").addEventListener("change",function(){
+const file=this.files[0];
+if(!file)return;
+
+const img=document.getElementById("thumbPreview");
+img.src=URL.createObjectURL(file);
+img.style.display="block";
+});
+
+async function publishVideo(){
+
+const {data:sessionData}=await supabaseClient.auth.getSession();
+
+if(!sessionData.session){
+showMsg("uploadMsg","पहले Login करें.",true);return;
+}
+
+const video=document.getElementById("videoFile").files[0];
+const thumbnail=document.getElementById("thumbnailFile").files[0];
+const title=document.getElementById("videoTitle").value.trim();
+const description=document.getElementById("videoDescription").value.trim();
+const category=document.getElementById("category").value;
+const language=document.getElementById("language").value;
+const tags=document.getElementById("tags").value.trim();
+const audience=document.getElementById("audience").value;
+const visibility=document.getElementById("visibility").value;
+
+if(!video){
+showMsg("uploadMsg","पहले वीडियो चुनें.",true);return;
+}
+
+if(!title){
+showMsg("uploadMsg","वीडियो का Title डालें.",true);return;
+}
+
+if(video.size>2*1024*1024*1024){
+showMsg("uploadMsg","वीडियो 2GB से बड़ा है.",true);return;
+}
+
+showMsg("uploadMsg","Upload शुरू करने के लिए Supabase Storage तैयार करना जरूरी है.");
+
+try{
+
+const user=sessionData.session.user;
+const id=crypto.randomUUID();
+
+const videoPath=user.id+"/"+id+"-"+video.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+
+const {error:videoError}=await supabaseClient.storage
+.from("videos")
+.upload(videoPath,video,{upsert:false});
+
+if(videoError)throw videoError;
+
+let thumbnailUrl="";
+
+if(thumbnail){
+
+const thumbPath=user.id+"/"+id+"-"+thumbnail.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+
+const {error:thumbError}=await supabaseClient.storage
+.from("thumbnails")
+.upload(thumbPath,thumbnail,{upsert:false});
+
+if(thumbError)throw thumbError;
+
+const {data:thumbData}=supabaseClient.storage
+.from("thumbnails")
+.getPublicUrl(thumbPath);
+
+thumbnailUrl=thumbData.publicUrl;
+}
+
+const {data:videoData}=supabaseClient.storage
+.from("videos")
+.getPublicUrl(videoPath);
+
+const {error:dbError}=await supabaseClient
+.from("videos")
+.insert({
+user_id:user.id,
+title:title,
+description:description,
+video_url:videoData.publicUrl,
+thumbnail_url:thumbnailUrl,
+category:category,
+language:language,
+tags:tags,
+audience:audience,
+visibility:visibility
+});
+
+if(dbError)throw dbError;
+
+showMsg("uploadMsg","Video successfully published.");
+
+}catch(error){
+showMsg("uploadMsg,error.message,true);
+}
+}
+
+supabaseClient.auth.getSession().then(({data})=>{
+updateAuthUI(data.session);
+});
+
+supabaseClient.auth.onAuthStateChange((event,session)=>{
+updateAuthUI(session);
+});
+</script>
+
+</body>
+</html>
