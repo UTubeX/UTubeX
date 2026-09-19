@@ -2,351 +2,1172 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UTubeX</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
-body{background:#f7f8fa;color:#111}
-header{height:64px;background:#fff;border-bottom:1px solid #ddd;display:flex;align-items:center;gap:15px;padding:0 18px;position:sticky;top:0;z-index:10}
-.logo{display:flex;align-items:center;gap:8px;font-size:23px;font-weight:800;min-width:170px}
-.logo img{width:42px;height:42px;object-fit:contain}
-.search{display:flex;flex:1;max-width:650px;margin:auto}
-.search input{width:100%;height:42px;border:1px solid #ccc;border-radius:22px 0 0 22px;padding:0 16px;outline:0}
-.search button{width:55px;border:1px solid #ccc;border-left:0;border-radius:0 22px 22px 0;background:#eee}
-.auth{display:flex;gap:7px}
-.auth button{border:0;border-radius:20px;padding:10px 15px;font-weight:bold;cursor:pointer}
-.login{background:#111;color:#fff}
-.signup{background:#e8f0ff;color:#1557c0}
-.logout{display:none;background:#eee}
-.user{display:none;font-size:12px;max-width:110px;overflow:hidden}
-main{max-width:1400px;margin:auto;padding:24px}
-.categories{display:flex;gap:10px;overflow:auto;margin-bottom:22px}
-.category{background:#fff;border:1px solid #ddd;border-radius:20px;padding:9px 17px;white-space:nowrap}
-.active{background:#111;color:#fff}
-.hero{padding:45px 30px;background:linear-gradient(135deg,#edf4ff,#fff);border:1px solid #e1e7ef;border-radius:20px;margin-bottom:30px}
-.hero h1{font-size:42px;margin-bottom:12px}
-.hero p{color:#555;margin-bottom:22px}
-.hero button{padding:13px 22px;border-radius:24px;border:0;font-weight:bold;margin-right:7px;cursor:pointer}
-.watch{background:#111;color:#fff}
-.upload{background:#fff;border:1px solid #bbb!important}
-h2{margin:28px 0 18px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
-.card{background:#fff;border:1px solid #ddd;border-radius:14px;overflow:hidden}
-.thumb{height:150px;background:linear-gradient(135deg,#dfe8f7,#fff);display:flex;align-items:center;justify-content:center;font-size:40px}
-.info{padding:13px}.info h3{font-size:16px;margin-bottom:7px}.info p{font-size:13px;color:#777}
-.shorts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px}
-.short{height:260px;border:1px solid #ddd;border-radius:14px;background:#e9f0ff;display:flex;align-items:center;justify-content:center;font-size:35px}
-footer{text-align:center;padding:30px;margin-top:50px;background:#fff;border-top:1px solid #ddd;color:#777}
-.modalbg{display:none;position:fixed;inset:0;background:#0008;align-items:center;justify-content:center;padding:20px;z-index:99}
-.modal{background:#fff;width:100%;max-width:400px;border-radius:18px;padding:28px;position:relative}
-.close{position:absolute;right:15px;top:10px;border:0;background:0;font-size:25px;cursor:pointer}
-.modal h2{margin:0 0 20px}
-.modal input{width:100%;padding:13px;margin-bottom:12px;border:1px solid #ccc;border-radius:9px}
-.submit{width:100%;padding:13px;border:0;border-radius:9px;background:#111;color:#fff;font-weight:bold}
-.switch{text-align:center;margin-top:15px;font-size:14px}
-.switch button{border:0;background:0;color:#1557c0;font-weight:bold}
-@media(max-width:700px){
-header{padding:0 9px}.logo{min-width:auto}.logo span{display:none}.auth button{padding:9px 10px}.user{display:none}
-main{padding:15px}.hero h1{font-size:30px}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  background:#fff;
+  color:#0f0f0f;
+}
+
+button{
+  cursor:pointer;
+}
+
+.header{
+  height:64px;
+  border-bottom:1px solid #e5e5e5;
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:0 20px;
+  position:sticky;
+  top:0;
+  background:#fff;
+  z-index:100;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:180px;
+}
+
+.brand img{
+  width:42px;
+  height:42px;
+  object-fit:contain;
+}
+
+.brand-name{
+  font-size:23px;
+  font-weight:800;
+  letter-spacing:-1px;
+}
+
+.search-area{
+  display:flex;
+  flex:1;
+  max-width:650px;
+  margin:auto;
+}
+
+.search-area input{
+  width:100%;
+  height:42px;
+  border:1px solid #cfcfcf;
+  border-right:0;
+  border-radius:22px 0 0 22px;
+  padding:0 18px;
+  font-size:15px;
+  outline:none;
+}
+
+.search-area input:focus{
+  border-color:#777;
+}
+
+.search-btn{
+  width:58px;
+  height:42px;
+  border:1px solid #cfcfcf;
+  border-radius:0 22px 22px 0;
+  background:#f5f5f5;
+  font-size:18px;
+}
+
+.auth-area{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.auth-btn{
+  border:1px solid #ddd;
+  background:#fff;
+  padding:9px 15px;
+  border-radius:20px;
+  font-weight:600;
+}
+
+.login-btn{
+  background:#0f0f0f;
+  color:#fff;
+  border-color:#0f0f0f;
+}
+
+.logout-btn{
+  display:none;
+  background:#f2f2f2;
+}
+
+.user-email{
+  display:none;
+  font-size:12px;
+  max-width:130px;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
+.layout{
+  display:flex;
+  min-height:calc(100vh - 64px);
+}
+
+.sidebar{
+  width:220px;
+  padding:18px 12px;
+  border-right:1px solid #eee;
+  position:sticky;
+  top:64px;
+  height:calc(100vh - 64px);
+  background:#fff;
+}
+
+.side-item{
+  width:100%;
+  border:0;
+  background:#fff;
+  text-align:left;
+  padding:12px 15px;
+  border-radius:10px;
+  font-size:14px;
+  margin-bottom:5px;
+}
+
+.side-item:hover{
+  background:#f2f2f2;
+}
+
+.side-item.active{
+  background:#f0f0f0;
+  font-weight:700;
+}
+
+.content{
+  flex:1;
+  padding:22px;
+  max-width:1600px;
+  margin:auto;
+}
+
+.mobile-search{
+  display:none;
+  margin-bottom:18px;
+}
+
+.section-title{
+  font-size:21px;
+  margin:10px 0 16px;
+}
+
+.chips{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  padding-bottom:8px;
+  margin-bottom:20px;
+}
+
+.chip{
+  border:0;
+  background:#f2f2f2;
+  padding:9px 16px;
+  border-radius:8px;
+  white-space:nowrap;
+  font-weight:600;
+}
+
+.chip.active{
+  background:#0f0f0f;
+  color:#fff;
+}
+
+.shorts-row{
+  display:flex;
+  gap:16px;
+  overflow-x:auto;
+  padding-bottom:8px;
+}
+
+.short-card{
+  min-width:180px;
+  max-width:180px;
+}
+
+.short-thumb{
+  height:300px;
+  border-radius:12px;
+  background:linear-gradient(145deg,#edf2ff,#f7f7f7);
+  border:1px solid #e5e5e5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.short-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.short-play{
+  position:absolute;
+  left:12px;
+  bottom:12px;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:#000b;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.short-title{
+  font-size:14px;
+  font-weight:600;
+  margin-top:9px;
+  line-height:1.35;
+}
+
+.video-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:28px 18px;
+}
+
+.video-card{
+  min-width:0;
+}
+
+.thumbnail{
+  width:100%;
+  aspect-ratio:16/9;
+  border-radius:12px;
+  background:linear-gradient(135deg,#e8eef8,#f7f7f7);
+  border:1px solid #e3e3e3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:40px;
+  overflow:hidden;
+}
+
+.thumbnail img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.video-info{
+  display:flex;
+  gap:10px;
+  padding-top:10px;
+}
+
+.channel-icon{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:#111;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  flex-shrink:0;
+}
+
+.video-title{
+  font-size:15px;
+  font-weight:700;
+  line-height:1.35;
+}
+
+.video-meta{
+  color:#606060;
+  font-size:13px;
+  margin-top:5px;
+  line-height:1.4;
+}
+
+.empty{
+  display:none;
+  text-align:center;
+  padding:60px 20px;
+  color:#666;
+}
+
+.footer{
+  margin-top:60px;
+  padding:30px;
+  border-top:1px solid #eee;
+  text-align:center;
+  color:#777;
+  font-size:13px;
+}
+
+.modal-bg{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  z-index:500;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.modal{
+  width:100%;
+  max-width:410px;
+  background:#fff;
+  border-radius:18px;
+  padding:28px;
+  position:relative;
+}
+
+.close{
+  position:absolute;
+  right:15px;
+  top:12px;
+  border:0;
+  background:transparent;
+  font-size:28px;
+}
+
+.modal h2{
+  margin-bottom:22px;
+}
+
+.modal input{
+  width:100%;
+  height:48px;
+  border:1px solid #ccc;
+  border-radius:9px;
+  padding:0 14px;
+  margin-bottom:12px;
+  outline:none;
+}
+
+.modal-submit{
+  width:100%;
+  height:48px;
+  border:0;
+  border-radius:9px;
+  background:#0f0f0f;
+  color:#fff;
+  font-size:15px;
+  font-weight:700;
+}
+
+.switch{
+  text-align:center;
+  margin-top:18px;
+  font-size:14px;
+}
+
+.switch button{
+  border:0;
+  background:transparent;
+  color:#065fd4;
+  font-weight:700;
+}
+
+.message{
+  margin-top:12px;
+  font-size:13px;
+  text-align:center;
+  color:#555;
+  min-height:18px;
+}
+
+@media(max-width:900px){
+
+  .sidebar{
+    display:none;
+  }
+
+  .brand{
+    min-width:auto;
+  }
+
+  .search-area{
+    display:none;
+  }
+
+  .mobile-search{
+    display:flex;
+  }
+
+  .header{
+    gap:10px;
+    padding:0 12px;
+  }
+
+  .brand-name{
+    font-size:20px;
+  }
+
+  .auth-area{
+    margin-left:auto;
+  }
+
+  .user-email{
+    display:none !important;
+  }
+
+  .content{
+    padding:15px;
+  }
+
+  .video-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:20px 12px;
+  }
+
+  .short-card{
+    min-width:155px;
+    max-width:155px;
+  }
+
+  .short-thumb{
+    height:260px;
+  }
+}
+
+@media(max-width:520px){
+
+  .brand img{
+    width:36px;
+    height:36px;
+  }
+
+  .brand-name{
+    font-size:18px;
+  }
+
+  .auth-btn{
+    padding:8px 11px;
+    font-size:12px;
+  }
+
+  .video-grid{
+    grid-template-columns:1fr;
+  }
+
+  .section-title{
+    font-size:19px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-<div class="logo">
-<img src="logo.png" alt="UTubeX">
-<span>UTubeX</span>
-</div>
+<header class="header">
 
-<div class="search">
-<input id="search" placeholder="Search videos...">
-<button onclick="searchVideo()">🔍</button>
-</div>
+  <div class="brand">
+    <img src="logo.png" alt="UTubeX Logo">
+    <div class="brand-name">UTubeX</div>
+  </div>
 
-<div class="auth">
-<span class="user" id="user"></span>
-<button class="login" id="loginBtn" onclick="openLogin()">Login</button>
-<button class="signup" id="signupBtn" onclick="openSignup()">Sign Up</button>
-<button class="logout" id="logoutBtn" onclick="logout()">Logout</button>
-</div>
+  <div class="search-area">
+    <input id="topSearch" type="text" placeholder="Search">
+    <button class="search-btn" onclick="searchVideos()">⌕</button>
+  </div>
+
+  <div class="auth-area">
+    <span class="user-email" id="userEmail"></span>
+
+    <button class="auth-btn login-btn" id="loginButton" onclick="openLogin()">
+      Login
+    </button>
+
+    <button class="auth-btn" id="signupButton" onclick="openSignup()">
+      Sign Up
+    </button>
+
+    <button class="auth-btn logout-btn" id="logoutButton" onclick="logout()">
+      Logout
+    </button>
+  </div>
+
 </header>
 
-<main>
+<div class="layout">
 
-<div class="categories">
-<div class="category active">All</div>
-<div class="category">Music</div>
-<div class="category">Movies</div>
-<div class="category">Gaming</div>
-<div class="category">News</div>
-<div class="category">Comedy</div>
-<div class="category">Shorts</div>
+  <aside class="sidebar">
+
+    <button class="side-item active" onclick="goHome()">
+      Home
+    </button>
+
+    <button class="side-item" onclick="scrollToSection('shortsSection')">
+      Shorts
+    </button>
+
+    <button class="side-item" onclick="scrollToSection('videosSection')">
+      Videos
+    </button>
+
+    <button class="side-item" onclick="openLogin()">
+      Your Account
+    </button>
+
+    <button class="side-item" onclick="uploadVideo()">
+      Upload
+    </button>
+
+  </aside>
+
+  <main class="content">
+
+    <div class="mobile-search search-area">
+      <input id="mobileSearch" type="text" placeholder="Search">
+      <button class="search-btn" onclick="searchVideos(true)">⌕</button>
+    </div>
+
+    <div class="chips">
+
+      <button class="chip active" onclick="selectCategory(this,'All')">
+        All
+      </button>
+
+      <button class="chip" onclick="selectCategory(this,'Music')">
+        Music
+      </button>
+
+      <button class="chip" onclick="selectCategory(this,'Movies')">
+        Movies
+      </button>
+
+      <button class="chip" onclick="selectCategory(this,'Gaming')">
+        Gaming
+      </button>
+
+      <button class="chip" onclick="selectCategory(this,'News')">
+        News
+      </button>
+
+      <button class="chip" onclick="selectCategory(this,'Comedy')">
+        Comedy
+      </button>
+
+      <button class="chip" onclick="selectCategory(this,'Shorts')">
+        Shorts
+      </button>
+
+    </div>
+
+    <section id="shortsSection">
+
+      <h2 class="section-title">Shorts</h2>
+
+      <div class="shorts-row">
+
+        <div class="short-card">
+          <div class="short-thumb">
+            <span>▶</span>
+            <div class="short-play">▶</div>
+          </div>
+          <div class="short-title">Welcome to UTubeX</div>
+        </div>
+
+        <div class="short-card">
+          <div class="short-thumb">
+            <span>▶</span>
+            <div class="short-play">▶</div>
+          </div>
+          <div class="short-title">Gaming Highlights</div>
+        </div>
+
+        <div class="short-card">
+          <div class="short-thumb">
+            <span>▶</span>
+            <div class="short-play">▶</div>
+          </div>
+          <div class="short-title">Latest Music Shorts</div>
+        </div>
+
+        <div class="short-card">
+          <div class="short-thumb">
+            <span>▶</span>
+            <div class="short-play">▶</div>
+          </div>
+          <div class="short-title">Movie Updates</div>
+        </div>
+
+        <div class="short-card">
+          <div class="short-thumb">
+            <span>▶</span>
+            <div class="short-play">▶</div>
+          </div>
+          <div class="short-title">Entertainment Shorts</div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section id="videosSection">
+
+      <h2 class="section-title">Recommended Videos</h2>
+
+      <div class="video-grid" id="videoGrid">
+
+        <article class="video-card" data-category="All Music">
+
+          <div class="thumbnail">
+            <span>▶</span>
+          </div>
+
+          <div class="video-info">
+
+            <div class="channel-icon">U</div>
+
+            <div>
+              <div class="video-title">
+                Welcome to UTubeX
+              </div>
+
+              <div class="video-meta">
+                UTubeX Official<br>
+                10K views • New Video
+              </div>
+            </div>
+
+          </div>
+
+        </article>
+
+        <article class="video-card" data-category="All Movies">
+
+          <div class="thumbnail">
+            <span>▶</span>
+          </div>
+
+          <div class="video-info">
+
+            <div class="channel-icon">U</div>
+
+            <div>
+              <div class="video-title">
+                Latest Movie Updates
+              </div>
+
+              <div class="video-meta">
+                UTubeX Cinema<br>
+                25K views • 2 days ago
+              </div>
+            </div>
+
+          </div>
+
+        </article>
+
+        <article class="video-card" data-category="All Gaming">
+
+          <div class="thumbnail">
+            <span>▶</span>
+          </div>
+
+          <div class="video-info">
+
+            <div class="channel-icon">G</div>
+
+            <div>
+              <div class="video-title">
+                Gaming Highlights
+              </div>
+
+              <div class="video-meta">
+                Gaming Channel<br>
+                50K views • 1 day ago
+              </div>
+            </div>
+
+          </div>
+
+        </article>
+
+        <article class="video-card" data-category="All Music">
+
+          <div class="thumbnail">
+            <span>▶</span>
+          </div>
+
+          <div class="video-info">
+
+            <div class="channel-icon">M</div>
+
+            <div>
+              <div class="video-title">
+                New Music Video
+              </div>
+
+              <div class="video-meta">
+                Music Channel<br>
+                100K views • 3 days ago
+              </div>
+            </div>
+
+          </div>
+
+        </article>
+
+        <article class="video-card" data-category="All News">
+
+          <div class="thumbnail">
+            <span>▶</span>
+          </div>
+
+          <div class="video-info">
+
+            <div class="channel-icon">N</div>
+
+            <div>
+              <div class="video-title">
+                Latest News
+              </div>
+
+              <div class="video-meta">
+                News Channel<br>
+                15K views • 5 hours ago
+              </div>
+            </div>
+
+          </div>
+
+        </article>
+
+        <article class="video-card" data-category="All Comedy">
+
+          <div class="thumbnail">
+            <span>▶</span>
+          </div>
+
+          <div class="video-info">
+
+            <div class="channel-icon">C</div>
+
+            <div>
+              <div class="video-title">
+                Comedy Collection
+              </div>
+
+              <div class="video-meta">
+                Comedy Channel<br>
+                32K views • 1 week ago
+              </div>
+            </div>
+
+          </div>
+
+        </article>
+
+      </div>
+
+      <div class="empty" id="emptyResult">
+        कोई वीडियो नहीं मिला।
+      </div>
+
+    </section>
+
+    <footer class="footer">
+      © 2026 UTubeX — Watch, Upload and Share Videos
+    </footer>
+
+  </main>
+
 </div>
 
-<section class="hero">
-<h1>Welcome to UTubeX</h1>
-<p>Watch, upload and share your favourite videos on UTubeX.</p>
-<button class="watch" onclick="document.getElementById('videos').scrollIntoView({behavior:'smooth'})">Start Watching</button>
-<button class="upload" onclick="upload()">Upload Video</button>
-</section>
 
-<h2 id="videos">Recommended Videos</h2>
+<div class="modal-bg" id="authModal">
 
-<div class="grid">
+  <div class="modal">
 
-<div class="card">
-<div class="thumb">▶</div>
-<div class="info">
-<h3>Welcome to UTubeX</h3>
-<p>UTubeX Official • New Video</p>
-</div>
-</div>
+    <button class="close" onclick="closeModal()">×</button>
 
-<div class="card">
-<div class="thumb">🎬</div>
-<div class="info">
-<h3>Latest Movie Updates</h3>
-<p>UTubeX Cinema • 10K views</p>
-</div>
-</div>
+    <h2 id="modalTitle">Login to UTubeX</h2>
 
-<div class="card">
-<div class="thumb">🎮</div>
-<div class="info">
-<h3>Gaming Highlights</h3>
-<p>Gaming Channel • 25K views</p>
-</div>
-</div>
+    <input
+      type="email"
+      id="email"
+      placeholder="Email address"
+      autocomplete="email"
+    >
 
-<div class="card">
-<div class="thumb">🎵</div>
-<div class="info">
-<h3>New Music Video</h3>
-<p>Music Channel • 50K views</p>
-</div>
-</div>
+    <input
+      type="password"
+      id="password"
+      placeholder="Password"
+      autocomplete="current-password"
+    >
 
-</div>
+    <button class="modal-submit" id="submitButton" onclick="handleAuth()">
+      Login
+    </button>
 
-<h2>Shorts</h2>
+    <div class="message" id="authMessage"></div>
 
-<div class="shorts">
-<div class="short">▶</div>
-<div class="short">🎮</div>
-<div class="short">😂</div>
-<div class="short">🎵</div>
-<div class="short">🔥</div>
-</div>
+    <div class="switch">
 
-</main>
+      <span id="switchText">
+        Don't have an account?
+      </span>
 
-<footer>
-© 2026 UTubeX — Watch, Upload and Share Videos
-</footer>
+      <button id="switchButton" onclick="switchAuthMode()">
+        Sign Up
+      </button>
 
-<div class="modalbg" id="modalbg">
+    </div>
 
-<div class="modal">
-
-<button class="close" onclick="closeModal()">×</button>
-
-<h2 id="title">Login to UTubeX</h2>
-
-<input type="email" id="email" placeholder="Email address">
-
-<input type="password" id="password" placeholder="Password">
-
-<button class="submit" id="submit" onclick="auth()">Login</button>
-
-<div class="switch">
-<span id="switchText">Don't have an account?</span>
-<button id="switchButton" onclick="switchMode()">Sign Up</button>
-</div>
+  </div>
 
 </div>
-</div>
+
 
 <script>
 
 /* =========================================================
-   UTubeX SUPABASE DETAILS
+   UTubeX SUPABASE
+   सिर्फ इन 2 जगहों पर अपनी असली जानकारी डालें
    ========================================================= */
 
-const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE"https://ddwokezrocpzfhxgltbc.supabase.co;"
+const SUPABASE_URL = "https://ddwokezrocpzfhxgltbc.supabase.co";
 
-const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE"sb_publishable_6V6qmPBuNC8CaAu3zbdnFg_SdXDZEk0;"
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_6V6qmPBuNC8CaAu3zbdnFg_SdXDZEk0";
 
 
 /* =========================================================
-   SUPABASE
+   SUPABASE START
    ========================================================= */
 
-const supabaseClient =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_PUBLISHABLE_KEY
-);
+let supabaseClient = null;
+
+try {
+
+  if (
+    SUPABASE_URL &&
+    SUPABASE_PUBLISHABLE_KEY &&
+    !SUPABASE_URL.includes("abcdefghijk") &&
+    !SUPABASE_PUBLISHABLE_KEY.includes("1234567890abcdef")
+  ) {
+
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+  }
+
+} catch(error) {
+
+  console.error("Supabase initialization error:", error);
+
+}
 
 
-let mode="login";
+/* =========================================================
+   AUTH MODE
+   ========================================================= */
+
+let authMode = "login";
 
 
 function openLogin(){
-mode="login";
-document.getElementById("title").innerText="Login to UTubeX";
-document.getElementById("submit").innerText="Login";
-document.getElementById("switchText").innerText="Don't have an account?";
-document.getElementById("switchButton").innerText="Sign Up";
-document.getElementById("modalbg").style.display="flex";
+
+  authMode = "login";
+
+  document.getElementById("modalTitle").innerText =
+    "Login to UTubeX";
+
+  document.getElementById("submitButton").innerText =
+    "Login";
+
+  document.getElementById("switchText").innerText =
+    "Don't have an account?";
+
+  document.getElementById("switchButton").innerText =
+    "Sign Up";
+
+  document.getElementById("authMessage").innerText = "";
+
+  document.getElementById("authModal").style.display =
+    "flex";
+
 }
 
 
 function openSignup(){
-mode="signup";
-document.getElementById("title").innerText="Create UTubeX Account";
-document.getElementById("submit").innerText="Create Account";
-document.getElementById("switchText").innerText="Already have an account?";
-document.getElementById("switchButton").innerText="Login";
-document.getElementById("modalbg").style.display="flex";
+
+  authMode = "signup";
+
+  document.getElementById("modalTitle").innerText =
+    "Create UTubeX Account";
+
+  document.getElementById("submitButton").innerText =
+    "Create Account";
+
+  document.getElementById("switchText").innerText =
+    "Already have an account?";
+
+  document.getElementById("switchButton").innerText =
+    "Login";
+
+  document.getElementById("authMessage").innerText = "";
+
+  document.getElementById("authModal").style.display =
+    "flex";
+
 }
 
 
-function switchMode(){
-if(mode==="login"){openSignup()}else{openLogin()}
+function switchAuthMode(){
+
+  if(authMode === "login"){
+    openSignup();
+  }else{
+    openLogin();
+  }
+
 }
 
 
 function closeModal(){
-document.getElementById("modalbg").style.display="none";
-}
 
-
-async function auth(){
-
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value;
-
-if(!email||!password){
-alert("Email और Password भरें।");
-return;
-}
-
-if(password.length<6){
-alert("Password कम से कम 6 characters का रखें।");
-return;
-}
-
-if(mode==="signup"){
-
-const {error}=await supabaseClient.auth.signUp({
-email:email,
-password:password
-});
-
-if(error){
-alert(error.message);
-return;
-}
-
-alert("Account बन गया है। Email verification माँगा जाए तो अपना Email verify करें।");
-closeModal();
-
-}else{
-
-const {error}=await supabaseClient.auth.signInWithPassword({
-email:email,
-password:password
-});
-
-if(error){
-alert(error.message);
-return;
-}
-
-alert("UTubeX Login सफल हुआ।");
-closeModal();
-updateUser();
-
-}
+  document.getElementById("authModal").style.display =
+    "none";
 
 }
 
 
-async function logout(){
+/* =========================================================
+   LOGIN / SIGN UP
+   ========================================================= */
 
-const {error}=await supabaseClient.auth.signOut();
+async function handleAuth(){
 
-if(error){
-alert(error.message);
-return;
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const message =
+    document.getElementById("authMessage");
+
+  if(!email || !password){
+
+    message.innerText =
+      "Email और Password भरें।";
+
+    return;
+
+  }
+
+  if(password.length < 6){
+
+    message.innerText =
+      "Password कम से कम 6 characters का रखें।";
+
+    return;
+
+  }
+
+  if(!supabaseClient){
+
+    message.innerText =
+      "Supabase connection अभी सेट नहीं है।";
+
+    return;
+
+  }
+
+  document.getElementById("submitButton").disabled =
+    true;
+
+  document.getElementById("submitButton").innerText =
+    "Please wait...";
+
+
+  try{
+
+    if(authMode === "signup"){
+
+      const result =
+        await supabaseClient.auth.signUp({
+          email:email,
+          password:password
+        });
+
+      if(result.error){
+
+        message.innerText =
+          result.error.message;
+
+      }else{
+
+        message.innerText =
+          "Account बन गया है। अगर Email verification माँगा जाए तो Email verify करें।";
+
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+
+      }
+
+    }else{
+
+      const result =
+        await supabaseClient.auth.signInWithPassword({
+          email:email,
+          password:password
+        });
+
+      if(result.error){
+
+        message.innerText =
+          result.error.message;
+
+      }else{
+
+        message.innerText =
+          "Login सफल हुआ।";
+
+        closeModal();
+
+        updateUser();
+
+      }
+
+    }
+
+  }catch(error){
+
+    message.innerText =
+      "कुछ समस्या हुई। कृपया फिर से कोशिश करें।";
+
+    console.error(error);
+
+  }
+
+
+  document.getElementById("submitButton").disabled =
+    false;
+
+  document.getElementById("submitButton").innerText =
+    authMode === "login"
+      ? "Login"
+      : "Create Account";
+
 }
 
-updateUser();
-alert("Logout हो गया।");
 
-}
-
+/* =========================================================
+   USER
+   ========================================================= */
 
 async function updateUser(){
 
-const {data:{user}}=await supabaseClient.auth.getUser();
+  if(!supabaseClient){
+    return;
+  }
 
-const loginBtn=document.getElementById("loginBtn");
-const signupBtn=document.getElementById("signupBtn");
-const logoutBtn=document.getElementById("logoutBtn");
-const userBox=document.getElementById("user");
+  try{
 
-if(user){
+    const result =
+      await supabaseClient.auth.getUser();
 
-loginBtn.style.display="none";
-signupBtn.style.display="none";
-logoutBtn.style.display="block";
-userBox.style.display="block";
-userBox.innerText=user.email;
+    const user =
+      result.data.user;
 
-}else{
+    const loginButton =
+      document.getElementById("loginButton");
 
-loginBtn.style.display="block";
-signupBtn.style.display="block";
-logoutBtn.style.display="none";
-userBox.style.display="none";
+    const signupButton =
+      document.getElementById("signupButton");
+
+    const logoutButton =
+      document.getElementById("logoutButton");
+
+    const userEmail =
+      document.getElementById("userEmail");
+
+
+    if(user){
+
+      loginButton.style.display =
+        "none";
+
+      signupButton.style.display =
+        "none";
+
+      logoutButton.style.display =
+        "block";
+
+      userEmail.style.display =
+        "block";
+
+      userEmail.innerText =
+        user.email || "";
+
+    }else{
+
+      loginButton.style.display =
+        "block";
+
+      signupButton.style.display =
+        "block";
+
+      logoutButton.style.display =
+        "none";
+
+      userEmail.style.display =
+        "none";
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+  }
 
 }
 
-}
 
+/* =========================================================
+   LOGOUT
+   ========================================================= */
 
-function searchVideo(){
+async function logout(){
 
-const value=document.getElementById("search").value.trim();
+  if(!supabaseClient){
+    return;
+  }
 
-if(!value){
-alert("वीडियो खोजने के लिए कुछ लिखें।");
-return;
-}
+  const result =
+    await supabaseClient.auth.signOut();
 
-alert("UTubeX Search: "+value);
+  if(result.error){
 
-}
+    alert(result.error.message);
 
-
-function upload(){
-
-alert("Video Upload System अगले चरण में जोड़ा जाएगा।");
-
-}
-
-
-updateUser();
-
-supabaseClient.auth.onAuthStateChange(function(){
-updateUser();
-});
-
-</script>
-
-</body>
-</html>
+    ret
