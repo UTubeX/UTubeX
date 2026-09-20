@@ -3320,6 +3320,114 @@ overlay.style.display="none";
 
 })();
 </script>
+ <button id="utxChangeLogoBtn" type="button"
+style="
+position:fixed;
+right:18px;
+bottom:75px;
+z-index:99999;
+padding:10px 15px;
+border:0;
+border-radius:12px;
+background:#1877f2;
+color:white;
+font-weight:800;
+box-shadow:0 5px 18px #0003;
+">
+📷 Change Channel Logo
+</button>
+
+<input id="utxLogoFile" type="file"
+accept="image/png,image/jpeg,image/webp"
+style="display:none">
+
+<script>
+(function(){
+
+const btn=document.getElementById("utxChangeLogoBtn");
+const file=document.getElementById("utxLogoFile");
+
+btn.onclick=function(){
+  file.click();
+};
+
+file.onchange=async function(){
+
+  const image=file.files[0];
+
+  if(!image) return;
+
+  if(image.size>5*1024*1024){
+    alert("Logo 5MB से छोटा रखें।");
+    return;
+  }
+
+  try{
+
+    const {data:{user}}=await sb.auth.getUser();
+
+    if(!user){
+      alert("पहले अपने UTubeX account में Login करें।");
+      return;
+    }
+
+    btn.textContent="Uploading...";
+
+    const ext=image.name.split(".").pop().toLowerCase();
+
+    const path=
+      "channel-logos/"+user.id+"-"+Date.now()+"."+ext;
+
+    const upload=await sb.storage
+      .from("thumbnails")
+      .upload(path,image,{
+        contentType:image.type,
+        upsert:false
+      });
+
+    if(upload.error){
+      throw upload.error;
+    }
+
+    const publicUrl=sb.storage
+      .from("thumbnails")
+      .getPublicUrl(path)
+      .data.publicUrl;
+
+    const save=await sb
+      .from("profiles")
+      .update({
+        avatar_url:publicUrl
+      })
+      .eq("id",user.id);
+
+    if(save.error){
+      throw save.error;
+    }
+
+    alert("Channel Logo सफलतापूर्वक बदल गया।");
+
+    location.reload();
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Logo save नहीं हुआ: "+
+      (error.message||"Unknown error")
+    );
+
+  }finally{
+
+    btn.textContent="📷 Change Channel Logo";
+
+  }
+
+};
+
+})();
+</script>
  
 </body>
 </html>
