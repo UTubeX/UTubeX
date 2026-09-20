@@ -2509,5 +2509,437 @@ if(myBtn){
 
 })();
  </script>
+ <script>
+(function(){
+
+function utxBuildMyChannel(){
+
+  const old=document.getElementById("utxMyChannelNew");
+
+  if(old) old.remove();
+
+  const page=document.createElement("div");
+  page.id="utxMyChannelNew";
+
+  page.style.cssText=`
+    position:fixed;
+    inset:0;
+    z-index:99990;
+    background:#fff;
+    overflow:auto;
+    padding:20px;
+  `;
+
+  page.innerHTML=`
+
+    <div style="
+      max-width:1000px;
+      margin:auto;
+    ">
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+      ">
+
+        <h1 style="margin:0;font-size:26px;">
+          Your Channel
+        </h1>
+
+        <button
+          id="utxCloseMyChannel"
+          style="
+            border:0;
+            background:#eee;
+            padding:10px 15px;
+            border-radius:10px;
+            font-weight:700;
+          ">
+          Close
+        </button>
+
+      </div>
+
+
+      <div style="
+        border:1px solid #ddd;
+        border-radius:18px;
+        padding:20px;
+        margin-bottom:20px;
+      ">
+
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:18px;
+          flex-wrap:wrap;
+        ">
+
+          <img
+            id="utxMyChannelLogo"
+            src="https://via.placeholder.com/100"
+            style="
+              width:90px;
+              height:90px;
+              border-radius:50%;
+              object-fit:cover;
+              border:1px solid #ddd;
+            "
+          >
+
+          <div style="flex:1">
+
+            <h2
+              id="utxMyChannelName"
+              style="margin:0 0 5px 0;">
+              Your Channel
+            </h2>
+
+            <div
+              id="utxMyChannelHandle"
+              style="color:#666;">
+              @username
+            </div>
+
+            <div
+              id="utxMyChannelBio"
+              style="
+                color:#555;
+                margin-top:8px;
+              ">
+            </div>
+
+          </div>
+
+
+          <button
+            id="utxRealEditChannel"
+            style="
+              border:0;
+              background:#111827;
+              color:white;
+              padding:12px 18px;
+              border-radius:10px;
+              font-weight:700;
+              cursor:pointer;
+            ">
+            Edit Channel
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div style="
+        display:flex;
+        gap:10px;
+        border-bottom:1px solid #ddd;
+        padding-bottom:10px;
+        margin-bottom:15px;
+      ">
+
+        <button
+          style="
+            border:0;
+            background:#111827;
+            color:white;
+            padding:10px 18px;
+            border-radius:10px;
+            font-weight:700;
+          ">
+          Videos
+        </button>
+
+      </div>
+
+
+      <div id="utxMyVideos">
+
+        <div style="
+          padding:30px;
+          text-align:center;
+          color:#777;
+        ">
+          आपके Videos लोड हो रहे हैं...
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(page);
+
+
+  document
+    .getElementById("utxCloseMyChannel")
+    .onclick=function(){
+      page.remove();
+    };
+
+
+  document
+    .getElementById("utxRealEditChannel")
+    .onclick=function(){
+
+      if(typeof window.utxEditMyChannel==="function"){
+        window.utxEditMyChannel();
+      }else{
+        alert("Edit Channel system अभी load नहीं हुआ है।");
+      }
+
+    };
+
+
+  utxLoadMyChannelData();
+
+}
+
+
+async function utxLoadMyChannelData(){
+
+  const {
+    data:{user}
+  }=await sb.auth.getUser();
+
+  if(!user){
+    alert("पहले Login करें।");
+    return;
+  }
+
+
+  const {data:profile}=await sb
+    .from("profiles")
+    .select("*")
+    .eq("id",user.id)
+    .maybeSingle();
+
+
+  const p=profile || {};
+
+
+  const name=
+    p.full_name ||
+    "Your Channel";
+
+
+  const username=
+    p.username ||
+    "username";
+
+
+  document
+    .getElementById("utxMyChannelName")
+    .textContent=name;
+
+
+  document
+    .getElementById("utxMyChannelHandle")
+    .textContent="@"+username;
+
+
+  document
+    .getElementById("utxMyChannelBio")
+    .textContent=
+      p.bio ||
+      "अपने चैनल का Bio जोड़ें।";
+
+
+  if(p.avatar_url){
+
+    document
+      .getElementById("utxMyChannelLogo")
+      .src=p.avatar_url;
+
+  }
+
+
+  const {
+    data:videos,
+    error
+  }=await sb
+    .from("videos")
+    .select("*")
+    .eq("user_id",user.id)
+    .order("created_at",{ascending:false});
+
+
+  const box=
+    document.getElementById("utxMyVideos");
+
+
+  if(error){
+
+    box.innerHTML=`
+      <div style="
+        padding:30px;
+        text-align:center;
+        color:red;
+      ">
+        Videos लोड नहीं हो सके।
+      </div>
+    `;
+
+    return;
+  }
+
+
+  if(!videos || videos.length===0){
+
+    box.innerHTML=`
+      <div style="
+        padding:40px;
+        text-align:center;
+        color:#777;
+      ">
+        अभी आपके चैनल पर कोई Video नहीं है।
+      </div>
+    `;
+
+    return;
+  }
+
+
+  box.innerHTML="";
+
+
+  videos.forEach(video=>{
+
+    const item=document.createElement("div");
+
+    item.style.cssText=`
+      display:flex;
+      gap:15px;
+      padding:15px 0;
+      border-bottom:1px solid #eee;
+      align-items:center;
+    `;
+
+
+    item.innerHTML=`
+
+      <img
+        src="${
+          video.thumbnail_url ||
+          'https://via.placeholder.com/180x100'
+        }"
+        style="
+          width:180px;
+          height:100px;
+          object-fit:cover;
+          border-radius:10px;
+        "
+      >
+
+      <div style="flex:1">
+
+        <div style="
+          font-size:18px;
+          font-weight:800;
+        ">
+          ${video.title || "Untitled Video"}
+        </div>
+
+        <div style="
+          color:#777;
+          margin-top:5px;
+        ">
+          ${video.views || 0} views
+        </div>
+
+        <button
+          style="
+            margin-top:8px;
+            border:0;
+            background:#eee;
+            padding:8px 13px;
+            border-radius:8px;
+            font-weight:700;
+          "
+          onclick='utxEditVideo(${JSON.stringify(video)})'>
+          Edit Video
+        </button>
+
+      </div>
+    `;
+
+
+    box.appendChild(item);
+
+  });
+
+}
+
+
+/*
+   पुराने My Channel button को नया
+   Your Channel खोलने के लिए पकड़ना
+*/
+
+const possibleButtons=[
+  "myChannelBtn",
+  "my-channel",
+  "myChannel",
+  "channelBtn"
+];
+
+
+possibleButtons.forEach(id=>{
+
+  const btn=document.getElementById(id);
+
+  if(!btn)return;
+
+
+  btn.onclick=function(e){
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    utxBuildMyChannel();
+
+  };
+
+});
+
+
+/*
+   अगर पुराने button का ID अलग है,
+   तो text देखकर भी पकड़ेंगे
+*/
+
+document.addEventListener("click",function(e){
+
+  const el=e.target.closest("button,a");
+
+  if(!el)return;
+
+
+  const text=(el.innerText || "")
+    .trim()
+    .toLowerCase();
+
+
+  if(
+    text==="my channel" ||
+    text==="your channel" ||
+    text==="मेरा चैनल"
+  ){
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    utxBuildMyChannel();
+
+  }
+
+},true);
+
+})();
+ </script>
+ 
 </body>
 </html>
