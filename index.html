@@ -2940,6 +2940,49 @@ document.addEventListener("click",function(e){
 
 })();
  </script>
+ async function utxRequireChannel(){
+
+  const {
+    data:{user}
+  } = await sb.auth.getUser();
+
+  if(!user){
+    alert("Video Upload करने के लिए पहले Login करें।");
+    return false;
+  }
+
+  const {data:profile,error}=await sb
+    .from("profiles")
+    .select("full_name,username,avatar_url")
+    .eq("id",user.id)
+    .maybeSingle();
+
+  if(error){
+    alert("Channel जानकारी नहीं मिल सकी।");
+    return false;
+  }
+
+  if(
+    !profile ||
+    !profile.full_name ||
+    !profile.username ||
+    !profile.avatar_url
+  ){
+
+    alert(
+      "पहले अपना Channel पूरा करें।\n\n" +
+      "Channel Name, Handle और Channel Logo डालना जरूरी है।"
+    );
+
+    if(typeof window.utxEditMyChannel==="function"){
+      window.utxEditMyChannel();
+    }
+
+    return false;
+  }
+
+  return true;
+}
  
 </body>
 </html>
