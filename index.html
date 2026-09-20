@@ -3517,5 +3517,83 @@ file.onchange=async function(){
   display:block !important;
 }
  </style>
+ window.uploadProgress = function(percent, bytesUploaded, bytesTotal){
+
+  let box = document.getElementById("utxUploadStatus");
+
+  if(!box){
+
+    box = document.createElement("div");
+    box.id = "utxUploadStatus";
+
+    box.style.cssText =
+      "position:fixed;" +
+      "left:15px;" +
+      "right:15px;" +
+      "bottom:15px;" +
+      "z-index:999999;" +
+      "background:#fff;" +
+      "border:1px solid #ddd;" +
+      "border-radius:14px;" +
+      "padding:14px;" +
+      "box-shadow:0 6px 25px rgba(0,0,0,.20);" +
+      "font-family:Arial,sans-serif;";
+
+    box.innerHTML =
+      '<div id="utxUploadText" style="font-weight:700;margin-bottom:8px;">' +
+      'Uploading... 0%' +
+      '</div>' +
+
+      '<div style="width:100%;height:8px;background:#e5e5e5;border-radius:20px;overflow:hidden;">' +
+      '<div id="utxUploadBar" style="width:0%;height:100%;background:#ff0000;transition:width .2s;"></div>' +
+      '</div>' +
+
+      '<div id="utxUploadMB" style="font-size:13px;margin-top:7px;color:#555;">' +
+      '0 MB / 0 MB' +
+      '</div>';
+
+    document.body.appendChild(box);
+  }
+
+  const bar =
+    document.getElementById("utxUploadBar");
+
+  const text =
+    document.getElementById("utxUploadText");
+
+  const mb =
+    document.getElementById("utxUploadMB");
+
+  const uploaded =
+    (bytesUploaded / 1024 / 1024).toFixed(2);
+
+  const total =
+    (bytesTotal / 1024 / 1024).toFixed(2);
+
+  if(bar){
+    bar.style.width =
+      Math.min(percent,100) + "%";
+  }
+
+  if(text){
+    text.textContent =
+      "Uploading... " +
+      Math.round(percent) +
+      "%";
+  }
+
+  if(mb){
+    mb.textContent =
+      uploaded +
+      " MB / " +
+      total +
+      " MB";
+  }
+
+  if(percent >= 100 && text){
+    text.textContent =
+      "Upload complete ✓";
+  }
+};
 </body>
 </html>
