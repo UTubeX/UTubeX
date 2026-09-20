@@ -3257,5 +3257,68 @@ overlay.style.display="none";
  </script>
 </div>
  </div>
+ <style>
+/* UTubeX Official - Logo + Branded Banner */
+
+.utxOfficialTop{
+  background:
+    radial-gradient(circle at 15% 25%,rgba(255,255,255,.35),transparent 25%),
+    radial-gradient(circle at 85% 70%,rgba(255,255,255,.18),transparent 28%),
+    linear-gradient(135deg,#0b1f5e,#1769ff 50%,#7c3aed) !important;
+  height:170px !important;
+  overflow:hidden;
+}
+
+.utxOfficialTop:after{
+  content:"UTubeX OFFICIAL";
+  position:absolute;
+  left:25px;
+  bottom:22px;
+  color:#fff;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:2px;
+  opacity:.9;
+}
+
+#utxOfficialAvatar{
+  background:#fff !important;
+  padding:0 !important;
+}
+
+#utxOfficialAvatar img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  border-radius:50% !important;
+}
+
+.utxOfficialTitle{
+  font-weight:900 !important;
+}
+
+.utxOfficialStatus{
+  border:1px solid #dbe7ff !important;
+  background:#f4f8ff !important;
+  color:#1558c0 !important;
+  font-weight:800 !important;
+}
+</style>
+
+<script>
+(function(){
+
+  const avatar =
+    document.getElementById("utxOfficialAvatar");
+
+  if(avatar){
+
+    avatar.innerHTML =
+      '<img src="logo.png" alt="UTubeX Official Logo">';
+
+  }
+
+})();
+</script>
 </body>
 </html>
