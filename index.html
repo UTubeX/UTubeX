@@ -886,114 +886,108 @@ function uploadProgress(percent,uploaded,total){
  " MB";
 
 }
-
 async function uploadVideoReal(file,path){
 
- const user=await getUser();
+  const { data: { session } } =
+    await sb.auth.getSession();
 
- if(!user)
-  throw new Error("Login required");
+  if(!session){
+    throw new Error("Login required");
+  }
 
- return new Promise((resolve,reject)=>{
+  return new Promise((resolve,reject)=>{
 
-  const upload=new tus.Upload(file,{
+    const projectRef =
+      new URL(SUPABASE_URL).hostname.split(".")[0];
 
-   endpoint:TUS_ENDPOINT,
+    const tusEndpoint =
+      "https://" +
+      projectRef +
+      ".storage.supabase.co/storage/v1/upload/resumable";
 
-   retryDelays:[
-    0,
-    3000,
-    5000,
-    10000,
-    20000
-   ],
+    const upload =
+      new tus.Upload(file,{
 
-   headers:{
-    authorization:
-    "Bearer "+
-    SUPABASE_PUBLISHABLE_KEY,
+        endpoint:tusEndpoint,
 
-    apikey:
-    SUPABASE_PUBLISHABLE_KEY
-   },
+        retryDelays:[
+          0,
+          3000,
+          5000,
+          10000,
+          20000
+        ],
 
-   metadata:{
-    bucketName:VIDEO_BUCKET,
-    objectName:path,
-    contentType:file.type||
-    "video/mp4",
-    cacheControl:"3600",
-    upsert:"false"
-   },
+        headers:{
+          authorization:
+            "Bearer " + session.access_token
+        },
 
-   uploadSize:file.size,
+        uploadDataDuringCreation:true,
 
-   onError(error){
+        removeFingerprintOnSuccess:true,
 
-    console.error(
-     "TUS UPLOAD ERROR",
-     error
-    );
+        metadata:{
+          bucketName:VIDEO_BUCKET,
+          objectName:path,
+          contentType:file.type,
+          cacheControl:"3600",
+          upsert:"false"
+        },
 
-    reject(error);
+        uploadSize:file.size,
 
-   },
+        onError:function(error){
 
-   onProgress(bytesUploaded,bytesTotal){
+          console.error(
+            "TUS UPLOAD ERROR",
+            error
+          );
 
-    const percent=
-    (bytesUploaded/bytesTotal)*100;
+          reject(error);
+        },
 
-    uploadProgress(
-     percent,
-     bytesUploaded,
-     bytesTotal
-    );
+        onProgress:function(
+          bytesUploaded,
+          bytesTotal
+        ){
 
-   },
+          const percent =
+            Math.round(
+              (bytesUploaded / bytesTotal) * 100
+            );
 
-   onSuccess(){
+          uploadProgress(
+            percent,
+            bytesUploaded,
+            bytesTotal
+          );
+        },
 
-    uploadProgress(
-     100,
-     file.size,
-     file.size
-    );
+        onSuccess:function(){
 
-    const url=
-    SUPABASE_URL+
-    "/storage/v1/object/public/"+
-    VIDEO_BUCKET+
-    "/"+
-    path;
+          uploadProgress(
+            100,
+            file.size,
+            file.size
+          );
 
-    resolve(url);
+          const url =
+            SUPABASE_URL +
+            "/storage/v1/object/public/" +
+            VIDEO_BUCKET +
+            "/" +
+            path;
 
-   }
+          resolve(url);
+        }
+
+      });
+
+    upload.start();
 
   });
-
-  upload.findPreviousUploads()
-  .then(previous=>{
-
-   if(previous.length){
-
-    upload.resumeFromPreviousUpload(
-     previous[0]
-    );
-
-   }
-
-   upload.start();
-
-  })
-  .catch(reject);
-
- });
-
 }
-
-async function uploadThumbnailReal(file,path){
 
  const r=await sb.storage
  .from(THUMB_BUCKET)
