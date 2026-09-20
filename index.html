@@ -1874,6 +1874,640 @@ sb.auth.onAuthStateChange(
 });
 
 </script>
+<script>
+/* UTubeX CHANNEL EDIT + YOUR CHANNEL + SUBSCRIBE */
 
+(function(){
+
+const UTX_CHANNEL_STYLE = `
+<style>
+.utx-channel-box{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:18px;
+  padding:20px;
+  margin:16px 0;
+}
+.utx-channel-head{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.utx-channel-logo{
+  width:82px;
+  height:82px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#eee;
+  border:2px solid #eee;
+}
+.utx-channel-name{
+  font-size:24px;
+  font-weight:800;
+}
+.utx-channel-handle{
+  color:#6b7280;
+  margin-top:4px;
+}
+.utx-channel-bio{
+  color:#4b5563;
+  margin-top:8px;
+}
+.utx-channel-actions{
+  margin-left:auto;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.utx-btn{
+  border:0;
+  border-radius:10px;
+  padding:10px 16px;
+  font-weight:700;
+  cursor:pointer;
+}
+.utx-edit-btn{
+  background:#111827;
+  color:white;
+}
+.utx-sub-btn{
+  background:#ef4444;
+  color:white;
+}
+.utx-subbed{
+  background:#e5e7eb;
+  color:#111827;
+}
+.utx-video-edit{
+  background:#f3f4f6;
+  border:0;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:700;
+}
+.utx-edit-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  padding:15px;
+}
+.utx-edit-card{
+  width:min(600px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:white;
+  border-radius:18px;
+  padding:20px;
+}
+.utx-edit-card h2{
+  margin-top:0;
+}
+.utx-field{
+  width:100%;
+  box-sizing:border-box;
+  padding:12px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  margin:6px 0 12px;
+  font-size:15px;
+}
+.utx-save{
+  background:#2563eb;
+  color:white;
+}
+.utx-close{
+  background:#e5e7eb;
+}
+</style>`;
+
+document.head.insertAdjacentHTML("beforeend",UTX_CHANNEL_STYLE);
+
+
+/* ---------- PROFILE ---------- */
+
+async function utxGetProfile(uid){
+  const {data,error}=await sb
+    .from("profiles")
+    .select("*")
+    .eq("id",uid)
+    .maybeSingle();
+
+  if(error) throw error;
+
+  return data || {
+    id:uid,
+    full_name:"UTubeX User",
+    username:"",
+    bio:"",
+    avatar_url:""
+  };
+}
+
+
+/* ---------- CHANNEL PAGE ---------- */
+
+window.utxOpenChannel=async function(uid){
+
+  const {data:{user}}=await sb.auth.getUser();
+
+  if(!uid){
+    if(!user){
+      alert("पहले Login करें।");
+      return;
+    }
+    uid=user.id;
+  }
+
+  const profile=await utxGetProfile(uid);
+
+  let isMine=user && user.id===uid;
+
+  const container=
+    document.querySelector("main") ||
+    document.querySelector("#main") ||
+    document.body;
+
+  const channelBox=document.createElement("div");
+  channelBox.className="utx-channel-box";
+
+  channelBox.innerHTML=`
+    <div class="utx-channel-head">
+
+      <img class="utx-channel-logo"
+        src="${profile.avatar_url || 'https://via.placeholder.com/100'}">
+
+      <div>
+        <div class="utx-channel-name">
+          ${profile.full_name || "UTubeX User"}
+        </div>
+
+        <div class="utx-channel-handle">
+          ${profile.username ? "@"+profile.username : "@user"}
+        </div>
+
+        <div class="utx-channel-bio">
+          ${profile.bio || "इस चैनल का अभी कोई Bio नहीं है।"}
+        </div>
+      </div>
+
+      <div class="utx-channel-actions">
+
+        ${
+          isMine
+          ? `<button class="utx-btn utx-edit-btn"
+              onclick="utxEditMyChannel()">
+              Edit Channel
+             </button>`
+          : `<button id="utxSubscribeButton"
+              class="utx-btn utx-sub-btn"
+              onclick="utxToggleSubscribe('${uid}')">
+              Subscribe
+             </button>`
+        }
+
+      </div>
+    </div>
+
+    ${
+      isMine
+      ? `
+      <div style="margin-top:20px">
+        <button class="utx-btn utx-edit-btn"
+          onclick="utxEditMyChannel()">
+          Edit Channel
+        </button>
+      </div>
+      `
+      : ""
+    }
+
+    <hr style="margin:22px 0;border:0;border-top:1px solid #eee">
+
+    <h2>${isMine ? "Your Channel" : "Videos"}</h2>
+
+    <div id="utxChannelVideos">
+      Videos loading...
+    </div>
+  `;
+
+  container.prepend(channelBox);
+
+  await utxLoadChannelVideos(uid,isMine);
+
+  if(!isMine){
+    await utxCheckSubscription(uid);
+  }
+};
+
+
+/* ---------- CHANNEL VIDEOS ---------- */
+
+async function utxLoadChannelVideos(uid,isMine){
+
+  const box=document.getElementById("utxChannelVideos");
+
+  if(!box)return;
+
+  const {data,error}=await sb
+    .from("videos")
+    .select("*")
+    .eq("user_id",uid)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    box.innerHTML="Videos लोड नहीं हो सके।";
+    return;
+  }
+
+  if(!data || !data.length){
+    box.innerHTML="अभी कोई वीडियो नहीं है।";
+    return;
+  }
+
+  box.innerHTML="";
+
+  data.forEach(v=>{
+
+    const item=document.createElement("div");
+
+    item.style.cssText=
+      "padding:14px 0;border-bottom:1px solid #eee;";
+
+    item.innerHTML=`
+      <div style="display:flex;gap:14px;align-items:center">
+
+        <img
+          src="${v.thumbnail_url || 'https://via.placeholder.com/180x100'}"
+          style="width:150px;height:85px;object-fit:cover;border-radius:10px">
+
+        <div style="flex:1">
+          <div style="font-weight:800;font-size:17px">
+            ${v.title || "Untitled Video"}
+          </div>
+
+          <div style="color:#777;font-size:13px;margin-top:5px">
+            ${v.views || 0} views
+          </div>
+
+          ${
+            isMine
+            ? `<button
+                class="utx-video-edit"
+                style="margin-top:8px"
+                onclick='utxEditVideo(${JSON.stringify(v)})'>
+                Edit Video
+               </button>`
+            : ""
+          }
+
+        </div>
+
+      </div>
+    `;
+
+    box.appendChild(item);
+  });
+}
+
+
+/* ---------- EDIT CHANNEL ---------- */
+
+window.utxEditMyChannel=async function(){
+
+  const {data:{user}}=await sb.auth.getUser();
+
+  if(!user){
+    alert("पहले Login करें।");
+    return;
+  }
+
+  const p=await utxGetProfile(user.id);
+
+  document.getElementById("utxChannelEditModal").style.display="flex";
+
+  document.getElementById("utxFullName").value=p.full_name || "";
+  document.getElementById("utxUsername").value=p.username || "";
+  document.getElementById("utxBio").value=p.bio || "";
+};
+
+
+/* ---------- SAVE CHANNEL ---------- */
+
+window.utxSaveChannel=async function(){
+
+  const {data:{user}}=await sb.auth.getUser();
+
+  if(!user){
+    alert("Login session नहीं मिली।");
+    return;
+  }
+
+  const full_name=document.getElementById("utxFullName").value.trim();
+  const username=document.getElementById("utxUsername").value.trim();
+  const bio=document.getElementById("utxBio").value.trim();
+
+  if(!full_name){
+    alert("Channel Name डालें।");
+    return;
+  }
+
+  const {error}=await sb
+    .from("profiles")
+    .upsert({
+      id:user.id,
+      full_name:full_name,
+      username:username,
+      bio:bio
+    },{
+      onConflict:"id"
+    });
+
+  if(error){
+    alert("Channel save नहीं हुआ: "+error.message);
+    return;
+  }
+
+  alert("Channel successfully updated.");
+
+  document.getElementById("utxChannelEditModal").style.display="none";
+
+  location.reload();
+};
+
+
+/* ---------- EDIT VIDEO ---------- */
+
+window.utxEditVideo=function(video){
+
+  document.getElementById("utxVideoEditModal").style.display="flex";
+
+  document.getElementById("utxVideoId").value=video.id;
+  document.getElementById("utxVideoTitle").value=video.title || "";
+  document.getElementById("utxVideoDescription").value=video.description || "";
+  document.getElementById("utxVideoTags").value=video.tags || "";
+  document.getElementById("utxVideoCategory").value=video.category || "Entertainment";
+  document.getElementById("utxVideoVisibility").value=video.visibility || "Public";
+};
+
+
+/* ---------- SAVE VIDEO ---------- */
+
+window.utxSaveVideo=async function(){
+
+  const id=document.getElementById("utxVideoId").value;
+
+  const title=document.getElementById("utxVideoTitle").value.trim();
+  const description=document.getElementById("utxVideoDescription").value.trim();
+  const tags=document.getElementById("utxVideoTags").value.trim();
+  const category=document.getElementById("utxVideoCategory").value;
+  const visibility=document.getElementById("utxVideoVisibility").value;
+
+  if(!title){
+    alert("Video Title डालें।");
+    return;
+  }
+
+  const {error}=await sb
+    .from("videos")
+    .update({
+      title,
+      description,
+      tags,
+      category,
+      visibility,
+      updated_at:new Date().toISOString()
+    })
+    .eq("id",id);
+
+  if(error){
+    alert("Video update नहीं हुआ: "+error.message);
+    return;
+  }
+
+  alert("Video successfully updated.");
+
+  document.getElementById("utxVideoEditModal").style.display="none";
+
+  location.reload();
+};
+
+
+/* ---------- SUBSCRIBE ---------- */
+
+window.utxToggleSubscribe=async function(channelId){
+
+  const {data:{user}}=await sb.auth.getUser();
+
+  if(!user){
+    alert("Subscribe करने के लिए Login करें।");
+    return;
+  }
+
+  if(user.id===channelId){
+    return;
+  }
+
+  const button=document.getElementById("utxSubscribeButton");
+
+  const {data:existing,error:checkError}=await sb
+    .from("subscriptions")
+    .select("id")
+    .eq("subscriber_id",user.id)
+    .eq("channel_id",channelId)
+    .maybeSingle();
+
+  if(checkError){
+    alert("Subscribe system में समस्या है: "+checkError.message);
+    return;
+  }
+
+  if(existing){
+
+    const {error}=await sb
+      .from("subscriptions")
+      .delete()
+      .eq("id",existing.id);
+
+    if(error){
+      alert(error.message);
+      return;
+    }
+
+    button.textContent="Subscribe";
+    button.classList.remove("utx-subbed");
+
+  }else{
+
+    const {error}=await sb
+      .from("subscriptions")
+      .insert({
+        subscriber_id:user.id,
+        channel_id:channelId
+      });
+
+    if(error){
+      alert("Subscribe नहीं हुआ: "+error.message);
+      return;
+    }
+
+    button.textContent="Subscribed";
+    button.classList.add("utx-subbed");
+  }
+};
+
+
+/* ---------- CHECK SUBSCRIBE ---------- */
+
+async function utxCheckSubscription(channelId){
+
+  const {data:{user}}=await sb.auth.getUser();
+
+  if(!user || user.id===channelId)return;
+
+  const {data}=await sb
+    .from("subscriptions")
+    .select("id")
+    .eq("subscriber_id",user.id)
+    .eq("channel_id",channelId)
+    .maybeSingle();
+
+  const button=document.getElementById("utxSubscribeButton");
+
+  if(button && data){
+    button.textContent="Subscribed";
+    button.classList.add("utx-subbed");
+  }
+}
+
+
+/* ---------- CHANNEL EDIT MODAL ---------- */
+
+document.body.insertAdjacentHTML("beforeend",`
+
+<div id="utxChannelEditModal" class="utx-edit-modal">
+
+  <div class="utx-edit-card">
+
+    <h2>Edit Channel</h2>
+
+    <label>Channel Name</label>
+    <input id="utxFullName"
+      class="utx-field"
+      placeholder="Channel Name">
+
+    <label>Handle</label>
+    <input id="utxUsername"
+      class="utx-field"
+      placeholder="@username">
+
+    <label>Bio</label>
+    <textarea id="utxBio"
+      class="utx-field"
+      rows="5"
+      placeholder="Channel Bio"></textarea>
+
+    <div style="display:flex;gap:8px">
+      <button class="utx-btn utx-save"
+        onclick="utxSaveChannel()">
+        Save Changes
+      </button>
+
+      <button class="utx-btn utx-close"
+        onclick="document.getElementById('utxChannelEditModal').style.display='none'">
+        Cancel
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="utxVideoEditModal" class="utx-edit-modal">
+
+  <div class="utx-edit-card">
+
+    <h2>Edit Video</h2>
+
+    <input id="utxVideoId" type="hidden">
+
+    <label>Title</label>
+    <input id="utxVideoTitle"
+      class="utx-field"
+      placeholder="Video Title">
+
+    <label>Description</label>
+    <textarea id="utxVideoDescription"
+      class="utx-field"
+      rows="5"
+      placeholder="Description"></textarea>
+
+    <label>Tags</label>
+    <input id="utxVideoTags"
+      class="utx-field"
+      placeholder="Tags">
+
+    <label>Category</label>
+    <select id="utxVideoCategory" class="utx-field">
+      <option>Entertainment</option>
+      <option>Music</option>
+      <option>Movies</option>
+      <option>Gaming</option>
+      <option>Education</option>
+      <option>News</option>
+    </select>
+
+    <label>Visibility</label>
+    <select id="utxVideoVisibility" class="utx-field">
+      <option value="Public">Public</option>
+      <option value="Unlisted">Unlisted</option>
+      <option value="Private">Private</option>
+    </select>
+
+    <div style="display:flex;gap:8px">
+
+      <button class="utx-btn utx-save"
+        onclick="utxSaveVideo()">
+        Save Video
+      </button>
+
+      <button class="utx-btn utx-close"
+        onclick="document.getElementById('utxVideoEditModal').style.display='none'">
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+</div>
+`);
+
+
+/* ---------- YOUR CHANNEL BUTTON ---------- */
+
+const myBtn=document.getElementById("myChannelBtn");
+
+if(myBtn){
+  myBtn.addEventListener("click",async function(e){
+    e.preventDefault();
+
+    const {data:{user}}=await sb.auth.getUser();
+
+    if(!user){
+      alert("पहले Login करें।");
+      return;
+    }
+
+    utxOpenChannel(user.id);
+  });
+}
+
+})();
+ </script>
 </body>
 </html>
