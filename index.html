@@ -3324,6 +3324,921 @@ try{runUpload=window.utxRunUploadFixed}catch(e){window.runUpload=window.utxRunUp
 const my=document.getElementById('myChannelBtn');if(my&&typeof window.utxOpenMyProfile==='function'){my.onclick=function(e){e.preventDefault();e.stopImmediatePropagation();window.utxOpenMyProfile()}}
 })();
 </script>
+<style>
+.utx-channel-bar{
+display:flex;align-items:center;gap:12px;
+padding:14px 4px;margin-top:10px;
+border-top:1px solid #e5e7eb;
+border-bottom:1px solid #e5e7eb
+}
+.utx-channel-avatar{
+width:46px;height:46px;border-radius:50%;
+object-fit:cover;background:#e5e7eb;
+cursor:pointer
+}
+.utx-channel-info{
+min-width:0;flex:1;cursor:pointer
+}
+.utx-channel-name{
+font-size:15px;font-weight:700;
+color:#111827;white-space:nowrap;
+overflow:hidden;text-overflow:ellipsis
+}
+.utx-channel-meta{
+font-size:12px;color:#6b7280;margin-top:3px
+}
+.utx-subscribe-btn{
+border:0;border-radius:20px;
+padding:9px 15px;background:#111827;
+color:#fff;font-weight:700;cursor:pointer
+}
+.utx-subscribe-btn.subscribed{
+background:#e5e7eb;color:#111827
+}
+.utx-channel-page{
+position:fixed;inset:0;z-index:100000;
+background:#fff;overflow:auto;display:none
+}
+.utx-channel-page.show{display:block}
+.utx-channel-cover{
+height:160px;
+background:linear-gradient(135deg,#111827,#374151)
+}
+.utx-channel-head{
+max-width:1100px;margin:auto;padding:0 18px 20px
+}
+.utx-channel-profile-row{
+display:flex;align-items:flex-end;
+gap:16px;margin-top:-42px
+}
+.utx-channel-large-avatar{
+width:96px;height:96px;border-radius:50%;
+border:5px solid #fff;object-fit:cover;
+background:#e5e7eb
+}
+.utx-channel-title{padding-bottom:8px}
+.utx-channel-title h1{
+margin:0;font-size:25px
+}
+.utx-channel-title p{
+margin:5px 0 0;color:#6b7280;font-size:14px
+}
+.utx-channel-tabs{
+display:flex;gap:24px;
+border-bottom:1px solid #e5e7eb;
+margin-top:20px;overflow:auto
+}
+.utx-channel-tabs button{
+border:0;background:none;
+padding:13px 4px;font-weight:700
+}
+.utx-channel-videos{
+max-width:1100px;margin:20px auto;
+padding:0 18px;display:grid;
+grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+gap:18px
+}
+.utx-channel-video-card{cursor:pointer}
+.utx-channel-video-card img{
+width:100%;aspect-ratio:16/9;
+object-fit:cover;border-radius:10px;
+background:#e5e7eb
+}
+.utx-channel-video-title{
+font-size:14px;font-weight:700;margin-top:7px
+}
+.utx-channel-video-meta{
+font-size:12px;color:#6b7280;margin-top:4px
+}
+.utx-channel-close{
+position:absolute;right:16px;top:14px;
+z-index:3;width:40px;height:40px;
+border:0;border-radius:50%;
+background:rgba(0,0,0,.65);
+color:#fff;font-size:22px;cursor:pointer
+}.utx-owner-menu{
+position:fixed;z-index:99999;
+min-width:190px;background:#fff;
+border:1px solid #e5e7eb;
+border-radius:12px;
+box-shadow:0 12px 35px rgba(0,0,0,.18);
+padding:6px;display:none
+}
+.utx-owner-menu.show{display:block}
+.utx-owner-menu button{
+display:block;width:100%;
+border:0;background:#fff;
+text-align:left;padding:10px 12px;
+border-radius:8px;cursor:pointer;
+font-size:14px
+}
+.utx-owner-menu button:hover{
+background:#f3f4f6
+}
+.utx-owner-menu .danger{
+color:#dc2626
+}
+.utx-edit-modal{
+position:fixed;inset:0;
+z-index:100002;
+background:rgba(0,0,0,.55);
+display:none;align-items:center;
+justify-content:center;padding:15px
+}
+.utx-edit-modal.show{display:flex}
+.utx-edit-box{
+width:min(620px,100%);
+max-height:90vh;overflow:auto;
+background:#fff;border-radius:16px;
+padding:20px
+}
+.utx-edit-box h2{margin:0 0 15px}
+.utx-edit-box label{
+display:block;font-size:13px;
+font-weight:700;margin:10px 0 5px
+}
+.utx-edit-box input,
+.utx-edit-box textarea,
+.utx-edit-box select{
+width:100%;box-sizing:border-box;
+border:1px solid #d1d5db;
+border-radius:9px;padding:10px;
+font:inherit
+}
+.utx-edit-box textarea{min-height:100px}
+.utx-edit-actions{
+display:flex;justify-content:flex-end;
+gap:8px;margin-top:15px
+}
+.utx-edit-actions button{
+border:0;border-radius:9px;
+padding:10px 15px;
+cursor:pointer;font-weight:700
+}
+.utx-edit-cancel{background:#e5e7eb}
+.utx-edit-save{
+background:#2563eb;color:#fff
+}
+@media(max-width:600px){
+.utx-channel-cover{height:125px}
+.utx-channel-large-avatar{
+width:76px;height:76px
+}
+.utx-channel-profile-row{
+margin-top:-34px
+}
+.utx-channel-title h1{
+font-size:20px
+}
+.utx-channel-videos{
+grid-template-columns:repeat(2,1fr);
+gap:10px;padding:0 10px
+}
+}
+</style>
 
+<div id="utxChannelPage"
+class="utx-channel-page">
+
+<button class="utx-channel-close"
+onclick="utxCloseChannel()">×</button>
+
+<div id="utxChannelCover"
+class="utx-channel-cover"></div>
+
+<div class="utx-channel-head">
+
+<div class="utx-channel-profile-row">
+
+<img id="utxChannelAvatar"
+class="utx-channel-large-avatar"
+src="https://placehold.co/200x200?text=U">
+
+<div class="utx-channel-title">
+
+<h1 id="utxChannelName">
+Channel
+</h1>
+
+<p id="utxChannelStats">
+0 subscribers • 0 videos
+</p>
+
+</div>
+</div>
+
+<div class="utx-channel-tabs">
+<button>Home</button>
+<button>Videos</button>
+<button>Shorts</button>
+</div>
+
+</div>
+
+<div id="utxChannelVideos"
+class="utx-channel-videos"></div>
+
+</div>
+
+<div id="utxEditVideoModal"
+class="utx-edit-modal">
+
+<div class="utx-edit-box">
+
+<h2>Edit Video</h2>
+
+<label>Title</label>
+<input id="utxEditTitle">
+
+<label>Description</label>
+<textarea id="utxEditDescription"></textarea>
+
+<label>Category</label>
+<input id="utxEditCategory">
+
+<label>Language</label>
+<input id="utxEditLanguage">
+
+<label>Tags</label>
+<input id="utxEditTags">
+
+<label>Visibility</label>
+<select id="utxEditVisibility">
+<option value="Public">Public</option>
+<option value="Unlisted">Unlisted</option>
+<option value="Private">Private</option>
+</select>
+
+<div class="utx-edit-actions">
+
+<button class="utx-edit-cancel"
+onclick="utxCloseEdit()">Cancel</button>
+
+<button class="utx-edit-save"
+onclick="utxSaveEdit()">
+Save Changes
+</button>
+
+</div>
+</div>
+</div><script>
+
+let utxCurrentChannelId=null;
+let utxEditingVideoId=null;
+
+function utxSafe(value){
+
+return String(value??"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+async function utxGetSubscriberCount(userId){
+
+const {count,error}=await sb
+.from("subscriptions")
+.select("*",{count:"exact",head:true})
+.eq("channel_id",userId);
+
+if(error){
+console.error(error);
+return 0;
+}
+
+return Number(count||0);
+
+}
+
+async function utxOpenChannel(userId){
+
+if(!userId)return;
+
+utxCurrentChannelId=userId;
+
+const {data:profile,error:pe}=await sb
+.from("profiles")
+.select("*")
+.eq("id",userId)
+.single();
+
+if(pe){
+console.error(pe);
+return;
+}
+
+const {data:videos,error:ve}=await sb
+.from("videos")
+.select("*")
+.eq("user_id",userId)
+.eq("status","published")
+.order("created_at",{ascending:false});
+
+if(ve)console.error(ve);
+
+const list=videos||[];
+
+const avatar=
+profile.avatar_url||
+profile.photo_url||
+profile.image_url||
+"https://placehold.co/200x200?text=U";
+
+const name=
+profile.name||
+profile.username||
+profile.full_name||
+"UTubeX User";
+
+const subs=
+await utxGetSubscriberCount(userId);
+
+document.getElementById(
+"utxChannelAvatar"
+).src=avatar;
+
+document.getElementById(
+"utxChannelName"
+).textContent=name;
+
+document.getElementById(
+"utxChannelStats"
+).textContent=
+subs+" subscribers • "+
+list.length+" videos";
+
+const box=document.getElementById(
+"utxChannelVideos"
+);
+
+if(!list.length){
+
+box.innerHTML=
+'<div style="grid-column:1/-1;text-align:center;padding:50px;color:#6b7280">'+
+'इस चैनल पर अभी कोई वीडियो नहीं है।'+
+'</div>';
+
+}else{
+
+box.innerHTML=list.map(v=>{
+
+const thumb=
+v.thumbnail_url||
+"https://placehold.co/640x360?text=UTubeX";
+
+return `
+<div class="utx-channel-video-card"
+onclick="openVideo('${v.id}')">
+
+<img src="${utxSafe(thumb)}">
+
+<div class="utx-channel-video-title">
+${utxSafe(v.title||"Untitled")}
+</div>
+
+<div class="utx-channel-video-meta">
+${Number(v.views||0)} views
+</div>
+
+</div>
+`;
+
+}).join("");
+
+}
+
+document.getElementById(
+"utxChannelPage"
+).classList.add("show");
+
+}
+
+function utxCloseChannel(){
+
+document.getElementById(
+"utxChannelPage"
+).classList.remove("show");
+
+utxCurrentChannelId=null;
+
+}
+
+async function utxSubscribeChannel(
+userId,
+button
+){
+
+if(!currentUser){
+toast("पहले Sign In करें");
+return;
+}
+
+if(currentUser.id===userId){
+toast("अपने ही चैनल को Subscribe नहीं कर सकते");
+return;
+}
+
+const {data:old,error}=await sb
+.from("subscriptions")
+.select("*")
+.eq("subscriber_id",currentUser.id)
+.eq("channel_id",userId)
+.maybeSingle();
+
+if(error){
+toast(error.message);
+return;
+}
+
+if(old){
+
+const {error:e}=await sb
+.from("subscriptions")
+.delete()
+.eq("subscriber_id",currentUser.id)
+.eq("channel_id",userId);
+
+if(e){
+toast(e.message);
+return;
+}
+
+button.classList.remove("subscribed");
+button.textContent="Subscribe";
+
+}else{
+
+const {error:e}=await sb
+.from("subscriptions")
+.insert({
+subscriber_id:currentUser.id,
+channel_id:userId
+});
+
+if(e){
+toast(e.message);
+return;
+}
+
+button.classList.add("subscribed");
+button.textContent="Subscribed";
+
+}
+
+}async function utxOwnerVideoMenu(
+videoId,
+event
+){
+
+if(event)event.stopPropagation();
+
+if(!currentUser)return;
+
+const {data:video,error}=await sb
+.from("videos")
+.select("*")
+.eq("id",videoId)
+.eq("user_id",currentUser.id)
+.single();
+
+if(error||!video){
+toast("यह आपका वीडियो नहीं है");
+return;
+}
+
+document
+.querySelectorAll(".utx-owner-menu")
+.forEach(x=>x.remove());
+
+const menu=document.createElement("div");
+
+menu.className="utx-owner-menu show";
+
+menu.innerHTML=`
+
+<button onclick="utxEditVideo('${videoId}')">
+Edit Video
+</button>
+
+<button onclick="utxVisibility('${videoId}')">
+Change Visibility
+</button>
+
+<button onclick="utxCopyLink('${videoId}')">
+Copy Video Link
+</button>
+
+<button class="danger"
+onclick="utxDeleteVideo('${videoId}')">
+Delete Video
+</button>
+
+`;
+
+document.body.appendChild(menu);
+
+menu.style.left=
+Math.min(
+window.innerWidth-205,
+event?.clientX||20
+)+"px";
+
+menu.style.top=
+Math.min(
+window.innerHeight-210,
+event?.clientY||60
+)+"px";
+
+}
+
+document.addEventListener(
+"click",
+function(){
+
+document
+.querySelectorAll(".utx-owner-menu")
+.forEach(x=>x.remove());
+
+});
+
+async function utxEditVideo(videoId){
+
+const {data:v,error}=await sb
+.from("videos")
+.select("*")
+.eq("id",videoId)
+.eq("user_id",currentUser.id)
+.single();
+
+if(error||!v){
+toast("Video नहीं मिला");
+return;
+}
+
+utxEditingVideoId=videoId;
+
+document.getElementById(
+"utxEditTitle"
+).value=v.title||"";
+
+document.getElementById(
+"utxEditDescription"
+).value=v.description||"";
+
+document.getElementById(
+"utxEditCategory"
+).value=v.category||"";
+
+document.getElementById(
+"utxEditLanguage"
+).value=v.language||"";
+
+document.getElementById(
+"utxEditTags"
+).value=
+Array.isArray(v.tags)
+?v.tags.join(", ")
+:(v.tags||"");
+
+document.getElementById(
+"utxEditVisibility"
+).value=
+v.visibility||"Public";
+
+document.getElementById(
+"utxEditVideoModal"
+).classList.add("show");
+
+}
+
+function utxCloseEdit(){
+
+utxEditingVideoId=null;
+
+document.getElementById(
+"utxEditVideoModal"
+).classList.remove("show");
+
+}
+
+async function utxSaveEdit(){
+
+if(!currentUser||!utxEditingVideoId)return;
+
+const title=
+document.getElementById(
+"utxEditTitle"
+).value.trim();
+
+if(!title){
+toast("Video title डालिए");
+return;
+}
+
+const updateData={
+
+title:title,
+
+description:
+document.getElementById(
+"utxEditDescription"
+).value.trim(),
+
+category:
+document.getElementById(
+"utxEditCategory"
+).value.trim(),
+
+language:
+document.getElementById(
+"utxEditLanguage"
+).value.trim(),
+
+tags:
+document.getElementById(
+"utxEditTags"
+).value.trim(),
+
+visibility:
+document.getElementById(
+"utxEditVisibility"
+).value
+
+};
+
+const {error}=await sb
+.from("videos")
+.update(updateData)
+.eq("id",utxEditingVideoId)
+.eq("user_id",currentUser.id);
+
+if(error){
+toast("Video update नहीं हुआ: "+error.message);
+return;
+}
+
+utxCloseEdit();
+
+toast("Video successfully updated");
+
+if(typeof loadVideos==="function"){
+await loadVideos();
+}
+
+}
+
+async function utxVisibility(videoId){
+
+const value=prompt(
+"Visibility लिखें: Public, Unlisted या Private",
+"Public"
+);
+
+if(value===null)return;
+
+const visibility=value.trim();
+
+if(![
+"Public",
+"Unlisted",
+"Private"
+].includes(visibility)){
+
+toast("सिर्फ Public, Unlisted या Private डालें");
+
+return;
+
+}
+
+const {error}=await sb
+.from("videos")
+.update({visibility:visibility})
+.eq("id",videoId)
+.eq("user_id",currentUser.id);
+
+if(error){
+toast(error.message);
+return;
+}
+
+toast("Visibility updated");
+
+if(typeof loadVideos==="function"){
+await loadVideos();
+}
+
+ }async function utxCopyLink(videoId){
+
+const url=
+location.origin+
+location.pathname+
+"?video="+
+encodeURIComponent(videoId);
+
+try{
+
+await navigator.clipboard.writeText(url);
+
+toast("Video link copied");
+
+}catch(e){
+
+prompt("Copy this link:",url);
+
+}
+
+}
+
+async function utxDeleteVideo(videoId){
+
+if(!currentUser)return;
+
+const {data:v,error}=await sb
+.from("videos")
+.select("id,title")
+.eq("id",videoId)
+.eq("user_id",currentUser.id)
+.single();
+
+if(error||!v){
+toast("यह आपका वीडियो नहीं है");
+return;
+}
+
+const ok=confirm(
+"क्या इस वीडियो को Delete करना है?\n\n"+
+"सिर्फ यही selected video delete होगा।\n"+
+"बाकी सभी videos सुरक्षित रहेंगे।"
+);
+
+if(!ok)return;
+
+const {error:e}=await sb
+.from("videos")
+.delete()
+.eq("id",videoId)
+.eq("user_id",currentUser.id);
+
+if(e){
+toast("Video delete नहीं हुआ: "+e.message);
+return;
+}
+
+toast("Video deleted");
+
+if(typeof loadVideos==="function"){
+await loadVideos();
+}
+
+}
+
+async function utxCreateChannelBar(video){
+
+if(!video||!video.user_id)return;
+
+const old=document.getElementById(
+"utxVideoChannelBar"
+);
+
+if(old)old.remove();
+
+const {data:p}=await sb
+.from("profiles")
+.select("*")
+.eq("id",video.user_id)
+.maybeSingle();
+
+if(!p)return;
+
+const avatar=
+p.avatar_url||
+p.photo_url||
+p.image_url||
+"https://placehold.co/100x100?text=U";
+
+const name=
+p.name||
+p.username||
+p.full_name||
+"UTubeX User";
+
+const subs=
+await utxGetSubscriberCount(
+video.user_id
+);
+
+const bar=document.createElement("div");
+
+bar.id="utxVideoChannelBar";
+
+bar.className="utx-channel-bar";
+
+bar.innerHTML=`
+
+<img
+class="utx-channel-avatar"
+src="${utxSafe(avatar)}"
+onclick="utxOpenChannel('${video.user_id}')">
+
+<div
+class="utx-channel-info"
+onclick="utxOpenChannel('${video.user_id}')">
+
+<div class="utx-channel-name">
+${utxSafe(name)}
+</div>
+
+<div class="utx-channel-meta">
+${subs} subscribers
+</div>
+
+</div>
+
+${
+currentUser&&
+currentUser.id!==video.user_id
+?`
+<button
+class="utx-subscribe-btn"
+onclick="event.stopPropagation();
+utxSubscribeChannel('${video.user_id}',this)">
+Subscribe
+</button>
+`
+:""
+}
+
+`;
+
+const modal=
+document.getElementById("watchModal");
+
+if(modal){
+
+const container=
+modal.querySelector(".modal-content")||
+modal.firstElementChild||
+modal;
+
+container.appendChild(bar);
+
+}
+
+}
+
+const utxOldOpenVideo=
+window.openVideo;
+
+if(typeof utxOldOpenVideo==="function"){
+
+window.openVideo=async function(videoId){
+
+await utxOldOpenVideo(videoId);
+
+try{
+
+const {data:v}=await sb
+.from("videos")
+.select("*")
+.eq("id",videoId)
+.single();
+
+if(v){
+
+setTimeout(
+()=>utxCreateChannelBar(v),
+150
+);
+
+}
+
+}catch(e){
+
+console.error(e);
+
+}
+
+};
+
+}
+
+document.addEventListener(
+"keydown",
+function(e){
+
+if(e.key==="Escape"){
+
+utxCloseChannel();
+utxCloseEdit();
+
+}
+
+});
+
+</script>
+ 
 </body>
 </html>
