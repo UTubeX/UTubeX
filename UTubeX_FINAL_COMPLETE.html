@@ -1,0 +1,3327 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UTubeX - Watch, Upload and Share Videos</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
+
+<style>
+*{
+ box-sizing:border-box;
+ margin:0;
+ padding:0;
+}
+
+body{
+ font-family:Arial,Helvetica,sans-serif;
+ background:#f8f9fb;
+ color:#111;
+}
+
+button,input,textarea,select{
+ font:inherit;
+}
+
+button{
+ cursor:pointer;
+}
+
+.header{
+ height:64px;
+ background:#fff;
+ border-bottom:1px solid #e5e7eb;
+ display:flex;
+ align-items:center;
+ gap:18px;
+ padding:0 20px;
+ position:sticky;
+ top:0;
+ z-index:100;
+}
+
+.logo{
+ font-size:24px;
+ font-weight:900;
+ color:#1976ff;
+ white-space:nowrap;
+}
+
+.logo span{
+ color:#7c3aed;
+}
+
+.search{
+ flex:1;
+ max-width:650px;
+ display:flex;
+ margin:auto;
+}
+
+.search input{
+ width:100%;
+ height:42px;
+ border:1px solid #d7dbe2;
+ border-radius:22px 0 0 22px;
+ padding:0 18px;
+ outline:none;
+ background:#fff;
+}
+
+.search button{
+ width:55px;
+ border:1px solid #d7dbe2;
+ border-left:0;
+ border-radius:0 22px 22px 0;
+ background:#f3f4f6;
+}
+
+.headerBtn{
+ border:0;
+ background:#fff;
+ padding:9px 14px;
+ border-radius:20px;
+ font-weight:700;
+}
+
+.headerBtn:hover{
+ background:#eef4ff;
+}
+
+.loginBtn{
+ background:#1976ff;
+ color:#fff;
+}
+
+.layout{
+ display:flex;
+ min-height:calc(100vh - 64px);
+}
+
+.sidebar{
+ width:220px;
+ background:#fff;
+ border-right:1px solid #e5e7eb;
+ padding:18px 10px;
+ position:sticky;
+ top:64px;
+ height:calc(100vh - 64px);
+}
+
+.sideBtn{
+ width:100%;
+ text-align:left;
+ border:0;
+ background:#fff;
+ padding:12px 15px;
+ margin-bottom:4px;
+ border-radius:10px;
+ font-weight:600;
+}
+
+.sideBtn:hover,
+.sideBtn.active{
+ background:#edf4ff;
+ color:#1265df;
+}
+
+.main{
+ flex:1;
+ padding:25px;
+ max-width:1500px;
+ margin:auto;
+ width:100%;
+}
+
+.hero{
+ background:linear-gradient(120deg,#edf5ff,#f5efff);
+ border:1px solid #e3e8f2;
+ border-radius:18px;
+ padding:30px;
+ margin-bottom:24px;
+}
+
+.hero h1{
+ font-size:34px;
+ margin-bottom:8px;
+}
+
+.hero p{
+ color:#666;
+ font-size:16px;
+}
+
+.tabs{
+ display:flex;
+ gap:8px;
+ overflow-x:auto;
+ margin-bottom:22px;
+ padding-bottom:3px;
+}
+
+.tab{
+ border:1px solid #ddd;
+ background:#fff;
+ border-radius:20px;
+ padding:9px 17px;
+ white-space:nowrap;
+}
+
+.tab.active{
+ background:#111;
+ color:#fff;
+}
+
+.videoGrid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+ gap:22px;
+}
+
+.card{
+ background:#fff;
+ border-radius:13px;
+ overflow:hidden;
+ border:1px solid #e5e7eb;
+ cursor:pointer;
+ transition:.18s;
+}
+
+.card:hover{
+ transform:translateY(-2px);
+ box-shadow:0 8px 25px #00000012;
+}
+
+.thumb{
+ width:100%;
+ aspect-ratio:16/9;
+ background:#e8ebef;
+ object-fit:cover;
+ display:block;
+}
+
+.cardBody{
+ padding:13px;
+}
+
+.cardTitle{
+ font-size:16px;
+ font-weight:700;
+ line-height:1.35;
+ margin-bottom:7px;
+}
+
+.meta{
+ font-size:13px;
+ color:#70757d;
+}
+
+.empty{
+ background:#fff;
+ border:1px dashed #ccc;
+ padding:40px;
+ border-radius:15px;
+ text-align:center;
+ color:#777;
+}
+
+.modal{
+ position:fixed;
+ inset:0;
+ background:#0008;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ z-index:1000;
+ padding:15px;
+}
+
+.modal.show{
+ display:flex;
+}
+
+.modalBox{
+ width:min(650px,100%);
+ max-height:92vh;
+ overflow:auto;
+ background:#fff;
+ border-radius:18px;
+ padding:24px;
+ position:relative;
+}
+
+.close{
+ position:absolute;
+ right:15px;
+ top:12px;
+ border:0;
+ background:#eee;
+ width:34px;
+ height:34px;
+ border-radius:50%;
+ font-size:20px;
+}
+
+.modalBox h2{
+ margin-bottom:20px;
+}
+
+.field{
+ margin-bottom:15px;
+}
+
+.field label{
+ display:block;
+ font-size:14px;
+ font-weight:700;
+ margin-bottom:7px;
+}
+
+.field input,
+.field textarea,
+.field select{
+ width:100%;
+ border:1px solid #d7dbe2;
+ border-radius:9px;
+ padding:11px;
+ outline:none;
+ background:#fff;
+}
+
+.field textarea{
+ min-height:100px;
+ resize:vertical;
+}
+
+.primary{
+ width:100%;
+ border:0;
+ border-radius:10px;
+ background:#1976ff;
+ color:#fff;
+ padding:12px;
+ font-weight:800;
+}
+
+.secondary{
+ border:0;
+ border-radius:9px;
+ padding:10px 14px;
+ background:#eee;
+}
+
+.watchBox{
+ width:min(1000px,100%);
+}
+
+.watchVideo{
+ width:100%;
+ max-height:60vh;
+ background:#000;
+ border-radius:10px;
+}
+
+.watchTitle{
+ font-size:22px;
+ font-weight:800;
+ margin-top:14px;
+}
+
+.watchActions{
+ display:flex;
+ gap:8px;
+ flex-wrap:wrap;
+ margin:13px 0;
+}
+
+.action{
+ border:0;
+ background:#eef1f5;
+ padding:9px 14px;
+ border-radius:20px;
+}
+
+.description{
+ color:#555;
+ line-height:1.5;
+ background:#f6f7f9;
+ padding:13px;
+ border-radius:10px;
+}
+
+.comments{
+ margin-top:18px;
+}
+
+.commentInput{
+ display:flex;
+ gap:8px;
+ margin:12px 0;
+}
+
+.commentInput input{
+ flex:1;
+ border:1px solid #ddd;
+ border-radius:20px;
+ padding:10px 15px;
+}
+
+.comment{
+ padding:11px 0;
+ border-bottom:1px solid #eee;
+}
+
+.comment span{
+ display:block;
+ color:#555;
+ margin-top:3px;
+}
+
+.toast{
+ position:fixed;
+ left:50%;
+ bottom:25px;
+ transform:translateX(-50%);
+ background:#111;
+ color:#fff;
+ padding:12px 18px;
+ border-radius:25px;
+ display:none;
+ z-index:3000;
+}
+
+.toast.show{
+ display:block;
+}
+
+.uploadTray{
+ position:fixed;
+ right:18px;
+ bottom:18px;
+ width:min(380px,calc(100vw - 36px));
+ background:#fff;
+ border:1px solid #dfe3e8;
+ box-shadow:0 10px 40px #0002;
+ border-radius:16px;
+ padding:16px;
+ display:none;
+ z-index:1500;
+}
+
+.uploadTray.show{
+ display:block;
+}
+
+.utTop{
+ display:flex;
+ justify-content:space-between;
+ gap:10px;
+}
+
+.utTitle{
+ font-weight:800;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+.utStatus{
+ color:#666;
+ font-size:13px;
+ margin:7px 0;
+}
+
+.progressBg{
+ height:8px;
+ background:#e8ebef;
+ border-radius:10px;
+ overflow:hidden;
+}
+
+.progress{
+ height:100%;
+ width:0;
+ background:#1976ff;
+ transition:width .2s;
+}
+
+.utRow{
+ display:flex;
+ justify-content:space-between;
+ font-size:12px;
+ color:#666;
+ margin-top:7px;
+}
+
+.utButtons{
+ display:flex;
+ gap:8px;
+ margin-top:12px;
+}
+
+.utButtons button{
+ flex:1;
+ border:0;
+ border-radius:8px;
+ padding:9px;
+}
+
+#cancelUpload{
+ background:#eee;
+}
+
+#retryUpload{
+ background:#1976ff;
+ color:#fff;
+ display:none;
+}
+
+@media(max-width:800px){
+ .sidebar{
+  display:none;
+ }
+
+ .main{
+  padding:15px;
+ }
+
+ .header{
+  padding:0 10px;
+  gap:8px;
+ }
+
+ .logo{
+  font-size:20px;
+ }
+
+ .headerBtn{
+  padding:8px;
+ }
+
+ .hero h1{
+  font-size:25px;
+ }
+
+ .videoGrid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+ }
+
+ .cardTitle{
+  font-size:14px;
+ }
+
+ .cardBody{
+  padding:9px;
+ }
+
+ .search{
+  min-width:0;
+ }
+
+ .search input{
+  padding:0 10px;
+ }
+
+ .watchTitle{
+  font-size:18px;
+ }
+}
+
+@media(max-width:480px){
+ .videoGrid{
+  grid-template-columns:1fr;
+ }
+
+ .hero{
+  padding:20px;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+
+ <div class="logo">
+  UTube<span>X</span>
+ </div>
+
+ <div class="search">
+  <input id="searchInput"
+   type="search"
+   placeholder="Search videos...">
+  <button id="searchBtn">🔍</button>
+ </div>
+
+ <button class="headerBtn"
+  id="uploadTopBtn">
+  Upload
+ </button>
+
+ <button class="headerBtn loginBtn"
+  id="authBtn">
+  Sign In
+ </button>
+
+</header>
+
+<div class="layout">
+
+<aside class="sidebar">
+
+ <button class="sideBtn active"
+  data-category="All">
+  🏠 Home
+ </button>
+
+ <button class="sideBtn"
+  data-category="Trending">
+  🔥 Trending
+ </button>
+
+ <button class="sideBtn"
+  data-category="Music">
+  🎵 Music
+ </button>
+
+ <button class="sideBtn"
+  data-category="Movies">
+  🎬 Movies
+ </button>
+
+ <button class="sideBtn"
+  data-category="Gaming">
+  🎮 Gaming
+ </button>
+
+ <button class="sideBtn"
+  data-category="Education">
+  📚 Education
+ </button>
+
+ <button class="sideBtn"
+  data-category="News">
+  📰 News
+ </button>
+
+ <button class="sideBtn"
+  id="myChannelBtn">
+  👤 My Channel
+ </button>
+
+</aside>
+
+<main class="main">
+
+ <section class="hero">
+  <h1>Watch. Upload. Share.</h1>
+  <p>
+   UTubeX पर अपने पसंदीदा वीडियो देखें,
+   वीडियो अपलोड करें और दुनिया के साथ शेयर करें।
+  </p>
+ </section>
+
+ <div class="tabs">
+
+  <button class="tab active"
+   data-category="All">
+   All
+  </button>
+
+  <button class="tab"
+   data-category="Trending">
+   Trending
+  </button>
+
+  <button class="tab"
+   data-category="Music">
+   Music
+  </button>
+
+  <button class="tab"
+   data-category="Movies">
+   Movies
+  </button>
+
+  <button class="tab"
+   data-category="Gaming">
+   Gaming
+  </button>
+
+  <button class="tab"
+   data-category="Education">
+   Education
+  </button>
+
+  <button class="tab"
+   data-category="News">
+   News
+  </button>
+
+ </div>
+
+ <div id="videoGrid"
+  class="videoGrid">
+ </div>
+
+</main>
+</div>
+
+<!-- AUTH -->
+
+<div class="modal" id="authModal">
+
+ <div class="modalBox">
+
+  <button class="close"
+   data-close="authModal">
+   ×
+  </button>
+
+  <h2 id="authTitle">
+   Sign In
+  </h2>
+
+  <div class="field">
+   <label>Email</label>
+   <input id="authEmail"
+    type="email"
+    placeholder="Your email">
+  </div>
+
+  <div class="field">
+   <label>Password</label>
+   <input id="authPassword"
+    type="password"
+    placeholder="Password">
+  </div>
+
+  <button class="primary"
+   id="authSubmit">
+   Sign In
+  </button>
+
+  <button class="secondary"
+   id="authSwitch"
+   style="width:100%;margin-top:10px">
+   Create new account
+  </button>
+
+ </div>
+</div>
+
+<!-- UPLOAD -->
+
+<div class="modal" id="uploadModal">
+
+ <div class="modalBox">
+
+  <button class="close"
+   data-close="uploadModal">
+   ×
+  </button>
+
+  <h2>Upload Video</h2>
+
+  <div class="field">
+   <label>Video</label>
+   <input id="videoFile"
+    type="file"
+    accept="video/*">
+  </div>
+
+  <div class="field">
+   <label>Thumbnail</label>
+   <input id="thumbFile"
+    type="file"
+    accept="image/*">
+  </div>
+
+  <div class="field">
+   <label>Title</label>
+   <input id="videoTitle"
+    placeholder="Video title">
+  </div>
+
+  <div class="field">
+   <label>Description</label>
+   <textarea id="videoDescription"
+    placeholder="Video description"></textarea>
+  </div>
+
+  <div class="field">
+   <label>Category</label>
+   <select id="videoCategory">
+    <option>Entertainment</option>
+    <option>Music</option>
+    <option>Movies</option>
+    <option>Gaming</option>
+    <option>Education</option>
+    <option>News</option>
+    <option>Trending</option>
+   </select>
+  </div>
+
+  <div class="field">
+   <label>Language</label>
+   <select id="videoLanguage">
+    <option>Hindi</option>
+    <option>English</option>
+    <option>Bhojpuri</option>
+    <option>Other</option>
+   </select>
+  </div>
+
+  <div class="field">
+   <label>Tags</label>
+   <input id="videoTags"
+    placeholder="music, movie, video">
+  </div>
+
+  <div class="field">
+   <label>Visibility</label>
+   <select id="videoVisibility">
+    <option>Public</option>
+    <option>Unlisted</option>
+    <option>Private</option>
+   </select>
+  </div>
+
+  <button class="primary"
+   id="publishBtn">
+   Publish
+  </button>
+
+ </div>
+</div>
+
+<!-- WATCH -->
+
+<div class="modal" id="watchModal">
+
+ <div class="modalBox watchBox">
+
+  <button class="close"
+   data-close="watchModal">
+   ×
+  </button>
+
+  <video id="watchVideo"
+   class="watchVideo"
+   controls
+   playsinline>
+  </video>
+
+  <div id="watchTitle"
+   class="watchTitle">
+  </div>
+
+  <div id="watchMeta"
+   class="meta"
+   style="margin-top:5px">
+  </div>
+
+  <div class="watchActions">
+
+   <button class="action"
+    id="likeBtn">
+    👍 Like
+    <span id="likeCount">0</span>
+   </button>
+
+   <button class="action"
+    id="shareBtn">
+    ↗ Share
+   </button>
+
+  </div>
+
+  <div id="watchDescription"
+   class="description">
+  </div>
+
+  <div class="comments">
+
+   <h3>Comments</h3>
+
+   <div class="commentInput">
+    <input id="commentInput"
+     placeholder="Write a comment...">
+
+    <button class="action"
+     id="commentBtn">
+     Send
+    </button>
+   </div>
+
+   <div id="comments"></div>
+
+  </div>
+
+ </div>
+</div>
+
+<!-- UPLOAD STATUS -->
+
+<div id="uploadTray"
+ class="uploadTray">
+
+ <div class="utTop">
+  <div id="utTitle"
+   class="utTitle">
+   Uploading...
+  </div>
+  <b id="utPercent">0%</b>
+ </div>
+
+ <div id="utStatus"
+  class="utStatus">
+  Preparing...
+ </div>
+
+ <div class="progressBg">
+  <div id="utProgress"
+   class="progress">
+  </div>
+ </div>
+
+ <div class="utRow">
+  <span id="utSize">0 MB / 0 MB</span>
+  <span id="utSpeed"></span>
+ </div>
+
+ <div class="utButtons">
+  <button id="cancelUpload">
+   Cancel
+  </button>
+
+  <button id="retryUpload">
+   Retry
+  </button>
+ </div>
+
+</div>
+
+<div id="toast"
+ class="toast">
+</div>
+
+<script>
+
+const SUPABASE_URL =
+ "https://ddwokezrocpzfhxgltbc.supabase.co";
+
+/*
+ अपना Supabase Publishable Key यहाँ डालें।
+ service_role या secret key यहाँ कभी न डालें।
+*/
+const SUPABASE_PUBLISHABLE_KEY =
+ "sb_publishable_6V6qmPBuNC8CaAu3zbdnFg_SdXDZEk0";
+
+const sb =
+ supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+let currentUser = null;
+let currentVideo = null;
+let currentCategory = "All";
+let authMode = "login";
+let activeUpload = null;
+let lastUploadData = null;
+let uploadCancelled = false;
+let uploadStartedAt = 0;
+
+const $ = id =>
+ document.getElementById(id);
+
+function toast(message){
+
+ const el = $("toast");
+
+ el.textContent = message;
+ el.classList.add("show");
+
+ clearTimeout(el._timer);
+
+ el._timer =
+  setTimeout(()=>{
+   el.classList.remove("show");
+  },3000);
+}
+
+function showModal(id){
+ $(id).classList.add("show");
+}
+
+function closeModal(id){
+ $(id).classList.remove("show");
+}
+
+function formatMB(bytes){
+
+ return (
+  Number(bytes||0) /
+  1024 /
+  1024
+ ).toFixed(1)+" MB";
+}
+
+function formatViews(value){
+
+ const n = Number(value||0);
+
+ if(n>=1000000)
+  return (n/1000000).toFixed(1)+"M";
+
+ if(n>=1000)
+  return (n/1000).toFixed(1)+"K";
+
+ return String(n);
+}
+
+function escapeHTML(value){
+
+ return String(value||"")
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+}
+
+function timeAgo(date){
+
+ const diff =
+  Date.now() -
+  new Date(date).getTime();
+
+ const min =
+  Math.floor(diff/60000);
+
+ if(min<1)
+  return "Just now";
+
+ if(min<60)
+  return min+" min ago";
+
+ const hr =
+  Math.floor(min/60);
+
+ if(hr<24)
+  return hr+" hr ago";
+
+ const day =
+  Math.floor(hr/24);
+
+ if(day<30)
+  return day+" days ago";
+
+ return new Date(date)
+  .toLocaleDateString();
+}
+
+async function loadUser(){
+
+ const {data} =
+  await sb.auth.getSession();
+
+ currentUser =
+  data?.session?.user || null;
+
+ updateHeader();
+}
+
+function updateHeader(){
+
+ const btn = $("authBtn");
+
+ if(currentUser){
+
+  btn.textContent =
+   "Logout";
+
+  btn.classList.remove("loginBtn");
+
+ }else{
+
+  btn.textContent =
+   "Sign In";
+
+  btn.classList.add("loginBtn");
+ }
+}function renderVideos(videos){
+
+ const grid =
+  $("videoGrid");
+
+ if(!videos || !videos.length){
+
+  grid.innerHTML =
+   `<div class="empty">
+     अभी इस category में कोई video नहीं है।
+    </div>`;
+
+  return;
+ }
+
+ grid.innerHTML =
+  videos.map(video=>{
+
+   const thumb =
+    video.thumbnail_url ||
+    "https://placehold.co/640x360?text=UTubeX";
+
+   return `
+    <article class="card"
+     data-video-id="${escapeHTML(video.id)}">
+
+     <img
+      class="thumb"
+      src="${escapeHTML(thumb)}"
+      loading="lazy"
+      alt="thumbnail">
+
+     <div class="cardBody">
+
+      <div class="cardTitle">
+       ${escapeHTML(video.title||"Untitled")}
+      </div>
+
+      <div class="meta">
+       ${formatViews(video.views)} views
+       •
+       ${timeAgo(video.created_at)}
+      </div>
+
+     </div>
+    </article>
+   `;
+
+  }).join("");
+
+ grid
+  .querySelectorAll(".card")
+  .forEach(card=>{
+
+   card.addEventListener(
+    "click",
+    ()=>{
+     openVideo(
+      card.dataset.videoId
+     );
+    }
+   );
+
+  });
+}
+
+async function loadVideos(){
+
+ let query =
+  sb
+  .from("videos")
+  .select("*")
+  .eq("status","published")
+  .order(
+   "created_at",
+   {ascending:false}
+  )
+  .limit(100);
+
+ if(
+  currentCategory &&
+  currentCategory!=="All"
+ ){
+
+  query =
+   query.eq(
+    "category",
+    currentCategory
+   );
+ }
+
+ const {data,error} =
+  await query;
+
+ if(error){
+
+  console.error(error);
+
+  toast(
+   "Videos load नहीं हुए"
+  );
+
+  return;
+ }
+
+ renderVideos(data||[]);
+}
+
+function setCategory(category){
+
+ currentCategory =
+  category;
+
+ document
+  .querySelectorAll(
+   ".tab,.sideBtn"
+  )
+  .forEach(button=>{
+
+   button.classList.toggle(
+    "active",
+    button.dataset.category ===
+    category
+   );
+
+  });
+
+ loadVideos();
+}
+
+function searchVideos(){
+
+ const q =
+  $("searchInput")
+  .value
+  .trim()
+  .toLowerCase();
+
+ if(!q){
+
+  loadVideos();
+  return;
+ }
+
+ sb
+ .from("videos")
+ .select("*")
+ .eq("status","published")
+ .order(
+  "created_at",
+  {ascending:false}
+ )
+ .limit(100)
+ .then(({data,error})=>{
+
+  if(error){
+
+   toast("Search error");
+   return;
+  }
+
+  const result =
+   (data||[]).filter(video=>{
+
+    const text =
+     (
+      (video.title||"")+
+      " "+
+      (video.description||"")+
+      " "+
+      (video.tags||"")
+     ).toLowerCase();
+
+    return text.includes(q);
+   });
+
+  renderVideos(result);
+ });
+}
+
+
+/* AUTH */
+
+function openAuth(){
+
+ authMode="login";
+
+ $("authTitle").textContent =
+  "Sign In";
+
+ $("authSubmit").textContent =
+  "Sign In";
+
+ $("authSwitch").textContent =
+  "Create new account";
+
+ showModal("authModal");
+}
+
+async function submitAuth(){
+
+ const email =
+  $("authEmail")
+  .value
+  .trim();
+
+ const password =
+  $("authPassword")
+  .value;
+
+ if(!email || !password){
+
+  toast(
+   "Email और Password डालें"
+  );
+
+  return;
+ }
+
+ $("authSubmit").disabled=true;
+
+ if(authMode==="login"){
+
+  const {error} =
+   await sb.auth.signInWithPassword({
+    email,
+    password
+   });
+
+  $("authSubmit").disabled=false;
+
+  if(error){
+
+   toast(error.message);
+   return;
+  }
+
+  closeModal("authModal");
+
+  toast("Login successful");
+
+  await loadUser();
+
+ }else{
+
+  const {error} =
+   await sb.auth.signUp({
+    email,
+    password,
+    options:{
+     emailRedirectTo:
+      "https://utubex.github.io/UTubeX/"
+    }
+   });
+
+  $("authSubmit").disabled=false;
+
+  if(error){
+
+   toast(error.message);
+   return;
+  }
+
+  toast(
+   "Account बन गया। Email confirm करें।"
+  );
+
+  closeModal("authModal");
+ }
+}
+
+async function logout(){
+
+ await sb.auth.signOut();
+
+ currentUser=null;
+
+ updateHeader();
+
+ toast("Logged out");
+}
+
+
+/* UPLOAD */
+
+function openUpload(){
+
+ if(!currentUser){
+
+  toast(
+   "पहले Sign In करें"
+  );
+
+  openAuth();
+  return;
+ }
+
+ showModal("uploadModal");
+}
+
+function showUploadTray(title){
+
+ $("uploadTray")
+  .classList.add("show");
+
+ $("utTitle").textContent =
+  title || "Uploading...";
+
+ $("utProgress")
+  .style.width="0%";
+
+ $("utPercent")
+  .textContent="0%";
+
+ $("utSize")
+  .textContent=
+   "0 MB / 0 MB";
+
+ $("utSpeed")
+  .textContent="";
+
+ $("utStatus")
+  .textContent=
+   "Preparing...";
+
+ $("retryUpload")
+  .style.display="none";
+
+ $("cancelUpload")
+  .style.display="block";
+}
+
+function hideUploadTray(){
+
+ $("uploadTray")
+  .classList.remove("show");
+}
+
+function updateUploadProgress(
+ uploaded,
+ total
+){
+
+ const percent =
+  total
+   ? Math.min(
+      100,
+      uploaded/total*100
+     )
+   : 0;
+
+ $("utProgress")
+  .style.width =
+   percent.toFixed(1)+"%";
+
+ $("utPercent")
+  .textContent =
+   Math.round(percent)+"%";
+
+ $("utSize")
+  .textContent =
+   formatMB(uploaded)+
+   " / "+
+   formatMB(total);
+
+ const elapsed =
+  (performance.now()-
+   uploadStartedAt)/1000;
+
+ if(elapsed>0){
+
+  const speed =
+   uploaded/
+   1024/
+   1024/
+   elapsed;
+
+  $("utSpeed")
+   .textContent =
+    speed.toFixed(1)+
+    " MB/s";
+ }
+}
+
+function setUploadStatus(text){
+
+ $("utStatus")
+  .textContent=text;
+}
+
+async function startPublish(){
+
+ if(!currentUser){
+
+  toast(
+   "पहले Sign In करें"
+  );
+
+  return;
+ }
+
+ const video =
+  $("videoFile")
+  .files[0];
+
+ const thumb =
+  $("thumbFile")
+  .files[0];
+
+ const title =
+  $("videoTitle")
+  .value
+  .trim();
+
+ if(!video){
+
+  toast(
+   "Video select करें"
+  );
+
+  return;
+ }
+
+ if(
+  video.size >
+  50*1024*1024
+ ){
+
+  toast(
+   "अभी maximum 50 MB video upload कर सकते हैं"
+  );
+
+  return;
+ }
+
+ if(!title){
+
+  toast(
+   "Video title डालें"
+  );
+
+  return;
+ }
+
+ lastUploadData = {
+
+  video,
+  thumb,
+  title,
+
+  description:
+   $("videoDescription")
+   .value
+   .trim(),
+
+  category:
+   $("videoCategory")
+   .value,
+
+  language:
+   $("videoLanguage")
+   .value,
+
+  tags:
+   $("videoTags")
+   .value
+   .trim(),
+
+  visibility:
+   $("videoVisibility")
+   .value
+ };
+
+ closeModal("uploadModal");
+
+ showUploadTray(title);
+
+ runUpload(
+  lastUploadData
+ );
+}
+
+async function runUpload(data){
+
+ if(!data || !currentUser)
+  return;
+
+ uploadCancelled=false;
+
+ showUploadTray(
+  data.title
+ );
+
+ setUploadStatus(
+  "Uploading video..."
+ );
+
+ const file =
+  data.video;
+
+ uploadStartedAt =
+  performance.now();
+
+ const objectName =
+  currentUser.id+
+  "/"+
+  Date.now()+
+  "-"+
+  safeFileName(file.name);
+
+ const endpoint =
+  SUPABASE_URL+
+  "/storage/v1/upload/resumable";
+
+ const upload =
+  new tus.Upload(
+   file,
+   {
+
+    endpoint,
+
+    retryDelays:[
+     0,
+     1000,
+     3000,
+     5000,
+     10000
+    ],
+
+    headers:{
+     apikey:
+      SUPABASE_PUBLISHABLE_KEY,
+
+     Authorization:
+      "Bearer "+
+      SUPABASE_PUBLISHABLE_KEY
+    },
+
+    metadata:{
+
+     bucketName:
+      "videos",
+
+     objectName:
+      objectName,
+
+     contentType:
+      file.type ||
+      "video/mp4",
+
+     cacheControl:
+      "3600",
+
+     upsert:
+      "false"
+    },
+
+    onError(error){
+
+     console.error(error);
+
+     if(uploadCancelled)
+      return;
+
+     setUploadStatus(
+      "Upload failed"
+     );
+
+     $("retryUpload")
+      .style.display="block";
+
+     $("cancelUpload")
+      .style.display="none";
+
+     toast(
+      "Video upload failed"
+     );
+    },
+
+    onProgress(
+     bytesUploaded,
+     bytesTotal
+    ){
+
+     updateUploadProgress(
+      bytesUploaded,
+      bytesTotal
+     );
+    },
+
+    async onSuccess(){
+
+     if(uploadCancelled)
+      return;
+
+     $("utProgress")
+      .style.width="100%";
+
+     $("utPercent")
+      .textContent="100%";
+
+     setUploadStatus(
+      "Video uploaded ✓"
+     );
+
+     let thumbURL="";
+
+     if(data.thumb){
+
+      setUploadStatus(
+       "Uploading thumbnail..."
+      );
+
+      const thumbPath =
+       currentUser.id+
+       "/"+
+       Date.now()+
+       "-"+
+       safeFileName(
+        data.thumb.name
+       );
+
+      const result =
+       await sb
+       .storage
+       .from("thumbnails")
+       .upload(
+        thumbPath,
+        data.thumb,
+        {
+         upsert:false,
+         contentType:
+          data.thumb.type
+        }
+       );
+
+      if(!result.error){
+
+       const publicData =
+        sb
+        .storage
+        .from("thumbnails")
+        .getPublicUrl(
+         thumbPath
+        );
+
+       thumbURL =
+        publicData
+        .data
+        .publicUrl;
+      }
+     }
+
+     setUploadStatus(
+      "Publishing..."
+     );
+
+     let duration=0;
+
+     try{
+
+      duration =
+       await getVideoDuration(
+        file
+       );
+
+     }catch(e){
+
+      duration=0;
+     }
+
+     const publicURL =
+      SUPABASE_URL+
+      "/storage/v1/object/public/videos/"+
+      objectName;
+
+     const {error} =
+      await sb
+      .from("videos")
+      .insert({
+
+       user_id:
+        currentUser.id,
+
+       title:
+        data.title,
+
+       description:
+        data.description,
+
+       video_url:
+        publicURL,
+
+       thumbnail_url:
+        thumbURL,
+
+       category:
+        data.category,
+
+       language:
+        data.language,
+
+       tags:
+        data.tags,
+
+       visibility:
+        data.visibility,
+
+       status:
+        "published",
+
+       views:0,
+
+       likes:0,
+
+       comments_count:0,
+
+       duration_seconds:
+        Math.round(duration)
+      });
+
+     if(error){
+
+      console.error(error);
+
+      setUploadStatus(
+       "Publishing failed"
+      );
+
+      $("retryUpload")
+       .style.display="block";
+
+      $("cancelUpload")
+       .style.display="none";
+
+      return;
+     }
+
+     setUploadStatus(
+      "Published ✓"
+     );
+
+     $("utSpeed")
+      .textContent="Complete";
+
+     toast(
+      "Video successfully published"
+     );
+
+     lastUploadData=null;
+
+     await loadVideos();
+
+     setTimeout(
+      hideUploadTray,
+      4000
+     );
+    }
+   }
+  );
+
+ activeUpload =
+  upload;
+
+ try{
+
+  const previous =
+   await upload
+   .findPreviousUploads();
+
+  if(previous.length){
+
+   upload
+    .resumeFromPreviousUpload(
+     previous[0]
+    );
+  }
+
+ }catch(error){
+
+  console.log(
+   "Resume check skipped",
+   error
+  );
+ }
+
+ upload.start();
+}function cancelUpload(){
+
+ uploadCancelled=true;
+
+ try{
+
+  if(activeUpload)
+   activeUpload.abort();
+
+ }catch(e){}
+
+ setUploadStatus(
+  "Upload cancelled"
+ );
+
+ $("cancelUpload")
+  .style.display="none";
+
+ $("retryUpload")
+  .style.display="block";
+}
+
+function retryUpload(){
+
+ if(!lastUploadData){
+
+  toast(
+   "Retry data उपलब्ध नहीं है"
+  );
+
+  return;
+ }
+
+ $("retryUpload")
+  .style.display="none";
+
+ $("cancelUpload")
+  .style.display="block";
+
+ runUpload(
+  lastUploadData
+ );
+}
+
+function safeFileName(name){
+
+ return String(name||"video")
+  .replace(
+   /[^a-zA-Z0-9._-]/g,
+   "-"
+  )
+  .replace(
+   /-+/g,
+   "-"
+  );
+}
+
+function getVideoDuration(file){
+
+ return new Promise(
+  (resolve,reject)=>{
+
+   const url =
+    URL.createObjectURL(
+     file
+    );
+
+   const video =
+    document.createElement(
+     "video"
+    );
+
+   video.preload="metadata";
+
+   video.onloadedmetadata=()=>{
+
+    URL.revokeObjectURL(
+     url
+    );
+
+    resolve(
+     video.duration || 0
+    );
+   };
+
+   video.onerror=()=>{
+
+    URL.revokeObjectURL(
+     url
+    );
+
+    reject(
+     new Error(
+      "metadata error"
+     )
+    );
+   };
+
+   video.src=url;
+  }
+ );
+}
+
+
+/* WATCH */
+
+async function openVideo(id){
+
+ const {data,error} =
+  await sb
+  .from("videos")
+  .select("*")
+  .eq("id",id)
+  .single();
+
+ if(error || !data){
+
+  toast(
+   "Video नहीं मिला"
+  );
+
+  return;
+ }
+
+ currentVideo =
+  data;
+
+ $("watchVideo")
+  .src =
+   data.video_url;
+
+ $("watchTitle")
+  .textContent =
+   data.title ||
+   "Untitled";
+
+ $("watchMeta")
+  .textContent =
+   formatViews(
+    data.views
+   )+
+   " views • "+
+   timeAgo(
+    data.created_at
+   );
+
+ $("watchDescription")
+  .textContent =
+   data.description ||
+   "No description.";
+
+ $("likeCount")
+  .textContent =
+   data.likes || 0;
+
+ showModal(
+  "watchModal"
+ );
+
+ loadComments(
+  id
+ );
+
+ const newViews =
+  Number(data.views||0)+1;
+
+ sb
+ .from("videos")
+ .update({
+  views:newViews
+ })
+ .eq(
+  "id",
+  id
+ );
+
+ currentVideo.views =
+  newViews;
+}
+
+async function likeCurrent(){
+
+ if(!currentUser){
+
+  toast(
+   "Like करने के लिए Login करें"
+  );
+
+  return;
+ }
+
+ if(!currentVideo)
+  return;
+
+ const {error} =
+  await sb
+  .from("video_likes")
+  .insert({
+
+   video_id:
+    currentVideo.id,
+
+   user_id:
+    currentUser.id
+  });
+
+ if(error){
+
+  if(error.code==="23505"){
+
+   toast(
+    "आप पहले ही Like कर चुके हैं"
+   );
+
+  }else{
+
+   toast(
+    error.message
+   );
+  }
+
+  return;
+ }
+
+ currentVideo.likes =
+  Number(
+   currentVideo.likes||0
+  )+1;
+
+ $("likeCount")
+  .textContent =
+   currentVideo.likes;
+
+ toast("Liked");
+}
+
+async function shareCurrent(){
+
+ if(!currentVideo)
+  return;
+
+ const url =
+  location.origin+
+  location.pathname+
+  "?video="+
+  currentVideo.id;
+
+ try{
+
+  await navigator
+   .clipboard
+   .writeText(url);
+
+  toast(
+   "Video link copied"
+  );
+
+ }catch(error){
+
+  prompt(
+   "Copy this link:",
+   url
+  );
+ }
+}
+
+
+/* COMMENTS */
+
+async function loadComments(
+ videoId
+){
+
+ const box =
+  $("comments");
+
+ box.innerHTML =
+  "<div>Loading comments...</div>";
+
+ const {data,error} =
+  await sb
+  .from("video_comments")
+  .select("*")
+  .eq(
+   "video_id",
+   videoId
+  )
+  .order(
+   "created_at",
+   {ascending:true}
+  );
+
+ if(error){
+
+  box.innerHTML =
+   "<div>Comments load नहीं हुए</div>";
+
+  return;
+ }
+
+ if(!data || !data.length){
+
+  box.innerHTML =
+   "<div style='color:#777'>No comments yet.</div>";
+
+  return;
+ }
+
+ box.innerHTML =
+  data.map(comment=>`
+
+   <div class="comment">
+
+    <b>User</b>
+
+    <span>
+     ${escapeHTML(
+      comment.comment||""
+     )}
+    </span>
+
+   </div>
+
+  `).join("");
+}
+
+async function sendComment(){
+
+ if(!currentUser){
+
+  toast(
+   "Comment करने के लिए Login करें"
+  );
+
+  return;
+ }
+
+ if(!currentVideo)
+  return;
+
+ const text =
+  $("commentInput")
+  .value
+  .trim();
+
+ if(!text)
+  return;
+
+ const {error} =
+  await sb
+  .from("video_comments")
+  .insert({
+
+   video_id:
+    currentVideo.id,
+
+   user_id:
+    currentUser.id,
+
+   comment:
+    text
+  });
+
+ if(error){
+
+  toast(
+   error.message
+  );
+
+  return;
+ }
+
+ $("commentInput")
+  .value="";
+
+ await loadComments(
+  currentVideo.id
+ );
+
+ toast(
+  "Comment posted"
+ );
+}
+
+
+/* MY CHANNEL */
+
+async function myVideos(){
+
+ if(!currentUser){
+
+  openAuth();
+
+  return;
+ }
+
+ currentCategory =
+  "__MY__";
+
+ const {data,error} =
+  await sb
+  .from("videos")
+  .select("*")
+  .eq(
+   "user_id",
+   currentUser.id
+  )
+  .order(
+   "created_at",
+   {ascending:false}
+  );
+
+ if(error){
+
+  toast(
+   error.message
+  );
+
+  return;
+ }
+
+ renderVideos(
+  data||[]
+ );
+}
+
+
+/* BUTTON EVENTS */
+
+$("authBtn")
+ .addEventListener(
+  "click",
+  ()=>{
+
+   if(currentUser){
+
+    logout();
+
+   }else{
+
+    openAuth();
+   }
+
+  }
+ );
+
+$("uploadTopBtn")
+ .addEventListener(
+  "click",
+  openUpload
+ );
+
+$("publishBtn")
+ .addEventListener(
+  "click",
+  startPublish
+ );
+
+$("authSubmit")
+ .addEventListener(
+  "click",
+  submitAuth
+ );
+
+$("authSwitch")
+ .addEventListener(
+  "click",
+  ()=>{
+
+   if(authMode==="login"){
+
+    authMode="signup";
+
+    $("authTitle")
+     .textContent =
+      "Create Account";
+
+    $("authSubmit")
+     .textContent =
+      "Sign Up";
+
+    $("authSwitch")
+     .textContent =
+      "Already have an account? Sign In";
+
+   }else{
+
+    authMode="login";
+
+    $("authTitle")
+     .textContent =
+      "Sign In";
+
+    $("authSubmit")
+     .textContent =
+      "Sign In";
+
+    $("authSwitch")
+     .textContent =
+      "Create new account";
+   }
+
+  }
+ );
+
+$("searchBtn")
+ .addEventListener(
+  "click",
+  searchVideos
+ );
+
+$("searchInput")
+ .addEventListener(
+  "keydown",
+  event=>{
+
+   if(event.key==="Enter")
+    searchVideos();
+
+  }
+ );
+
+$("likeBtn")
+ .addEventListener(
+  "click",
+  likeCurrent
+ );
+
+$("shareBtn")
+ .addEventListener(
+  "click",
+  shareCurrent
+ );
+
+$("commentBtn")
+ .addEventListener(
+  "click",
+  sendComment
+ );
+
+$("commentInput")
+ .addEventListener(
+  "keydown",
+  event=>{
+
+   if(
+    event.key==="Enter" &&
+    !event.shiftKey
+   ){
+
+    event.preventDefault();
+
+    sendComment();
+   }
+
+  }
+ );
+
+$("cancelUpload")
+ .addEventListener(
+  "click",
+  cancelUpload
+ );
+
+$("retryUpload")
+ .addEventListener(
+  "click",
+  retryUpload
+ );
+
+$("myChannelBtn")
+ .addEventListener(
+  "click",
+  myVideos
+ );
+
+
+document
+ .querySelectorAll(
+  "[data-close]"
+ )
+ .forEach(button=>{
+
+  button.addEventListener(
+   "click",
+   ()=>{
+
+    closeModal(
+     button.dataset.close
+    );
+
+   }
+  );
+
+ });
+
+
+document
+ .querySelectorAll(
+  ".tab,.sideBtn"
+ )
+ .forEach(button=>{
+
+  button.addEventListener(
+   "click",
+   ()=>{
+
+    const category =
+     button.dataset.category;
+
+    if(category)
+     setCategory(
+      category
+     );
+
+   }
+  );
+
+ });
+
+
+/* AUTH STATE */
+
+sb.auth
+ .onAuthStateChange(
+  (event,session)=>{
+
+   currentUser =
+    session?.user || null;
+
+   updateHeader();
+
+  }
+ );
+
+
+/* URL VIDEO */
+
+async function openURLVideo(){
+
+ const params =
+  new URLSearchParams(
+   location.search
+  );
+
+ const id =
+  params.get("video");
+
+ if(id){
+
+  setTimeout(
+   ()=>{
+    openVideo(id);
+   },
+   700
+  );
+ }
+}
+
+
+/* START */
+
+(async function(){
+
+ try{
+
+  await loadUser();
+
+  await loadVideos();
+
+  await openURLVideo();
+
+ }catch(error){
+
+  console.error(error);
+
+  toast(
+   "UTubeX load error"
+  );
+ }
+
+})();
+
+</script>
+
+
+<style>
+/* UTubeX clean profile/channel extension */
+.utxProfileModal{
+  position:fixed;
+  inset:0;
+  background:#0008;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:5000;
+  padding:12px;
+}
+.utxProfileModal.show{display:flex}
+.utxProfileBox{
+  width:min(760px,100%);
+  max-height:94vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 20px 70px #0003;
+}
+.utxProfileHead{
+  position:relative;
+  height:180px;
+  background:#edf2f7;
+  overflow:hidden;
+}
+.utxBannerPreview{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.utxProfileClose{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:50%;
+  background:#fff;
+  font-size:22px;
+  box-shadow:0 2px 10px #0002;
+}
+.utxProfileBody{padding:20px}
+.utxProfileIdentity{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  margin-top:-58px;
+  position:relative;
+}
+.utxAvatarWrap{
+  width:112px;
+  height:112px;
+  border-radius:50%;
+  background:#fff;
+  padding:5px;
+  box-shadow:0 5px 20px #0002;
+  flex:none;
+}
+.utxProfileAvatar{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  object-fit:cover;
+  background:#eee;
+}
+.utxProfileName{
+  padding-top:52px;
+}
+.utxProfileName h2{font-size:23px}
+.utxHandle{color:#666;margin-top:3px}
+.utxVerified{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  background:#1976ff;
+  color:#fff;
+  font-size:12px;
+  margin-left:4px;
+}
+.utxProfileBio{
+  margin-top:16px;
+  color:#555;
+  line-height:1.5;
+}
+.utxProfileActions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:15px;
+}
+.utxProfileActions button{
+  border:0;
+  border-radius:10px;
+  padding:10px 15px;
+  font-weight:700;
+  background:#eef1f5;
+}
+.utxProfileActions .primaryProfile{
+  background:#1976ff;
+  color:#fff;
+}
+.utxEditPanel{
+  display:none;
+  border-top:1px solid #eee;
+  padding:20px;
+}
+.utxEditPanel.show{display:block}
+.utxCropGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.utxCropCard{
+  border:1px solid #e3e6eb;
+  border-radius:14px;
+  padding:13px;
+  background:#fafbfc;
+}
+.utxCropCard h3{font-size:16px;margin-bottom:10px}
+.utxCropPreviewLogo{
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  margin:0 auto 12px;
+  overflow:hidden;
+  background:#e9edf2;
+  position:relative;
+}
+.utxCropPreviewBanner{
+  width:100%;
+  height:120px;
+  overflow:hidden;
+  background:#e9edf2;
+  position:relative;
+  margin-bottom:12px;
+}
+.utxCropImage{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transform-origin:center;
+  display:block;
+}
+.utxRange{
+  width:100%;
+  margin:5px 0 10px;
+}
+.utxRangeLabel{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:#666;
+}
+.utxFile{
+  width:100%;
+  margin:7px 0 10px;
+}
+.utxSave{
+  width:100%;
+  border:0;
+  border-radius:11px;
+  padding:12px;
+  background:#1976ff;
+  color:#fff;
+  font-weight:800;
+  margin-top:14px;
+}
+.utxChannelVideos{
+  border-top:1px solid #eee;
+  margin-top:20px;
+  padding-top:18px;
+}
+@media(max-width:600px){
+  .utxCropGrid{grid-template-columns:1fr}
+  .utxProfileHead{height:140px}
+  .utxProfileIdentity{margin-top:-45px}
+  .utxAvatarWrap{width:90px;height:90px}
+  .utxProfileName{padding-top:43px}
+  .utxProfileName h2{font-size:19px}
+}
+</style>
+
+<div class="utxProfileModal" id="utxProfileModal">
+  <div class="utxProfileBox">
+    <div class="utxProfileHead">
+      <img id="utxBannerView" class="utxBannerPreview" alt="">
+      <button class="utxProfileClose" id="utxProfileClose">×</button>
+    </div>
+
+    <div class="utxProfileBody">
+      <div class="utxProfileIdentity">
+        <div class="utxAvatarWrap">
+          <img id="utxAvatarView" class="utxProfileAvatar" alt="">
+        </div>
+        <div class="utxProfileName">
+          <h2 id="utxProfileName">UTubeX Channel</h2>
+          <div class="utxHandle" id="utxProfileHandle">@channel</div>
+        </div>
+      </div>
+
+      <div class="utxProfileBio" id="utxProfileBio"></div>
+
+      <div class="utxProfileActions">
+        <button class="primaryProfile" id="utxEditProfileBtn">Edit Channel</button>
+        <button id="utxProfileClose2">Close</button>
+      </div>
+
+      <div class="utxEditPanel" id="utxEditPanel">
+        <div class="field">
+          <label>Channel Name</label>
+          <input id="utxEditName" placeholder="Channel name">
+        </div>
+
+        <div class="field">
+          <label>Handle</label>
+          <input id="utxEditHandle" placeholder="@handle">
+        </div>
+
+        <div class="field">
+          <label>Bio</label>
+          <textarea id="utxEditBio" placeholder="Channel bio"></textarea>
+        </div>
+
+        <div class="utxCropGrid">
+          <div class="utxCropCard">
+            <h3>Channel Logo</h3>
+            <div class="utxCropPreviewLogo">
+              <img id="utxLogoCropPreview" class="utxCropImage" alt="">
+            </div>
+            <input id="utxLogoFile" class="utxFile" type="file" accept="image/*">
+
+            <div class="utxRangeLabel"><span>Zoom</span><span id="utxLogoZoomText">100%</span></div>
+            <input id="utxLogoZoom" class="utxRange" type="range" min="60" max="180" value="100">
+
+            <div class="utxRangeLabel"><span>Horizontal</span><span id="utxLogoXText">0</span></div>
+            <input id="utxLogoX" class="utxRange" type="range" min="-50" max="50" value="0">
+
+            <div class="utxRangeLabel"><span>Vertical</span><span id="utxLogoYText">0</span></div>
+            <input id="utxLogoY" class="utxRange" type="range" min="-50" max="50" value="0">
+          </div>
+
+          <div class="utxCropCard">
+            <h3>Channel Banner</h3>
+            <div class="utxCropPreviewBanner">
+              <img id="utxBannerCropPreview" class="utxCropImage" alt="">
+            </div>
+            <input id="utxBannerFile" class="utxFile" type="file" accept="image/*">
+
+            <div class="utxRangeLabel"><span>Zoom</span><span id="utxBannerZoomText">100%</span></div>
+            <input id="utxBannerZoom" class="utxRange" type="range" min="100" max="180" value="100">
+
+            <div class="utxRangeLabel"><span>Horizontal</span><span id="utxBannerXText">0</span></div>
+            <input id="utxBannerX" class="utxRange" type="range" min="-50" max="50" value="0">
+
+            <div class="utxRangeLabel"><span>Vertical</span><span id="utxBannerYText">0</span></div>
+            <input id="utxBannerY" class="utxRange" type="range" min="-50" max="50" value="0">
+          </div>
+        </div>
+
+        <button class="utxSave" id="utxSaveProfile">Save Channel</button>
+      </div>
+
+      <div class="utxChannelVideos">
+        <h3>Videos</h3>
+        <div id="utxProfileVideoGrid" class="videoGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const DEFAULT_AVATAR =
+    "https://ui-avatars.com/api/?name=UTubeX&background=1976ff&color=fff&size=512";
+
+  const DEFAULT_BANNER =
+    "https://placehold.co/1280x360/eef4ff/1976ff?text=UTubeX";
+
+  const modal = document.getElementById("utxProfileModal");
+
+  let profileUserId = null;
+  let logoObjectUrl = "";
+  let bannerObjectUrl = "";
+
+  function el(id){ return document.getElementById(id); }
+
+  function esc(v){
+    return String(v || "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function profileUser(){
+    return currentUser;
+  }
+
+  function setTransform(target, zoom, x, y){
+    target.style.transform =
+      "translate(" + Number(x) + "%," + Number(y) + "%) scale(" +
+      (Number(zoom)/100) + ")";
+  }
+
+  function refreshCrop(which){
+    if(which === "logo"){
+      const z = Number(el("utxLogoZoom").value);
+      const x = Number(el("utxLogoX").value);
+      const y = Number(el("utxLogoY").value);
+      el("utxLogoZoomText").textContent = z + "%";
+      el("utxLogoXText").textContent = x;
+      el("utxLogoYText").textContent = y;
+      setTransform(el("utxLogoCropPreview"),z,x,y);
+    }else{
+      const z = Number(el("utxBannerZoom").value);
+      const x = Number(el("utxBannerX").value);
+      const y = Number(el("utxBannerY").value);
+      el("utxBannerZoomText").textContent = z + "%";
+      el("utxBannerXText").textContent = x;
+      el("utxBannerYText").textContent = y;
+      setTransform(el("utxBannerCropPreview"),z,x,y);
+    }
+  }
+
+  function showProfileEditor(show){
+    el("utxEditPanel").classList.toggle("show",show);
+  }
+
+  function closeProfile(){
+    modal.classList.remove("show");
+    showProfileEditor(false);
+  }
+
+  async function getProfile(uid){
+    const {data,error} = await sb
+      .from("profiles")
+      .select("id,full_name,username,bio,avatar_url,banner_url")
+      .eq("id",uid)
+      .maybeSingle();
+
+    if(error){
+      // If banner_url is missing, keep the login/video system working
+      // and tell the user exactly what needs to be added.
+      if(String(error.message || "").toLowerCase().includes("banner_url")){
+        const retry = await sb
+          .from("profiles")
+          .select("id,full_name,username,bio,avatar_url")
+          .eq("id",uid)
+          .maybeSingle();
+
+        if(retry.error) throw retry.error;
+        return Object.assign({},retry.data || {},{banner_url:null});
+      }
+      throw error;
+    }
+    return data || {};
+  }
+
+  async function openProfile(uid){
+    profileUserId = uid;
+
+    try{
+      const p = await getProfile(uid);
+
+      el("utxProfileName").innerHTML =
+        esc(p.full_name || p.username || "UTubeX Channel") +
+        (String(p.username || "").toLowerCase() === "utubexofficial"
+          ? ' <span class="utxVerified">✓</span>' : "");
+
+      el("utxProfileHandle").textContent =
+        "@" + (p.username || "channel");
+
+      el("utxProfileBio").textContent =
+        p.bio || "";
+
+      el("utxAvatarView").src =
+        p.avatar_url || DEFAULT_AVATAR;
+
+      el("utxBannerView").src =
+        p.banner_url || DEFAULT_BANNER;
+
+      el("utxProfileVideoGrid").innerHTML =
+        '<div class="empty">Videos loading...</div>';
+
+      modal.classList.add("show");
+
+      const {data,error} = await sb
+        .from("videos")
+        .select("*")
+        .eq("user_id",uid)
+        .eq("status","published")
+        .order("created_at",{ascending:false});
+
+      if(error) throw error;
+
+      const list = data || [];
+
+      if(!list.length){
+        el("utxProfileVideoGrid").innerHTML =
+          '<div class="empty">इस चैनल पर अभी कोई वीडियो नहीं है।</div>';
+      }else{
+        el("utxProfileVideoGrid").innerHTML =
+          list.map(v => `
+            <div class="card" data-utx-video="${esc(v.id)}">
+              <img class="thumb" src="${esc(v.thumbnail_url || "https://placehold.co/640x360?text=UTubeX")}" alt="">
+              <div class="cardBody">
+                <div class="cardTitle">${esc(v.title)}</div>
+                <div class="meta">${Number(v.views||0)} views</div>
+              </div>
+            </div>
+          `).join("");
+
+        el("utxProfileVideoGrid")
+          .querySelectorAll("[data-utx-video]")
+          .forEach(card=>{
+            card.addEventListener("click",()=>{
+              closeProfile();
+              openVideo(card.dataset.utxVideo);
+            });
+          });
+      }
+    }catch(e){
+      console.error(e);
+      toast(e.message || "Profile load नहीं हुआ");
+    }
+  }
+
+  async function openMyProfile(){
+    const u = profileUser();
+    if(!u){
+      openAuth();
+      return;
+    }
+    await openProfile(u.id);
+  }
+
+  function openEditor(){
+    const u = profileUser();
+    if(!u) return;
+
+    getProfile(u.id).then(p=>{
+      el("utxEditName").value = p.full_name || "";
+      el("utxEditHandle").value = p.username ? "@"+p.username : "";
+      el("utxEditBio").value = p.bio || "";
+
+      el("utxLogoCropPreview").src =
+        p.avatar_url || DEFAULT_AVATAR;
+
+      el("utxBannerCropPreview").src =
+        p.banner_url || DEFAULT_BANNER;
+
+      el("utxLogoZoom").value = 100;
+      el("utxLogoX").value = 0;
+      el("utxLogoY").value = 0;
+
+      el("utxBannerZoom").value = 100;
+      el("utxBannerX").value = 0;
+      el("utxBannerY").value = 0;
+
+      refreshCrop("logo");
+      refreshCrop("banner");
+      showProfileEditor(true);
+    }).catch(e=>{
+      toast(e.message || "Profile edit नहीं खुला");
+    });
+  }
+
+  function loadImage(file,target){
+    if(!file) return;
+    const url = URL.createObjectURL(file);
+
+    if(target === "logo"){
+      if(logoObjectUrl) URL.revokeObjectURL(logoObjectUrl);
+      logoObjectUrl = url;
+      el("utxLogoCropPreview").src = url;
+    }else{
+      if(bannerObjectUrl) URL.revokeObjectURL(bannerObjectUrl);
+      bannerObjectUrl = url;
+      el("utxBannerCropPreview").src = url;
+    }
+  }
+
+  async function cropImage(file,kind,zoom,x,y){
+    const image = new Image();
+    image.src = URL.createObjectURL(file);
+
+    await new Promise((resolve,reject)=>{
+      image.onload=resolve;
+      image.onerror=reject;
+    });
+
+    const W = kind === "logo" ? 512 : 1280;
+    const H = kind === "logo" ? 512 : 360;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#eef1f5";
+    ctx.fillRect(0,0,W,H);
+
+    const scale = Math.max(W/image.width,H/image.height) * (zoom/100);
+    const dw = image.width * scale;
+    const dh = image.height * scale;
+
+    const dx = (W-dw)/2 + (x/50)*(W/4);
+    const dy = (H-dh)/2 + (y/50)*(H/4);
+
+    ctx.drawImage(image,dx,dy,dw,dh);
+
+    URL.revokeObjectURL(image.src);
+
+    return new Promise((resolve,reject)=>{
+      canvas.toBlob(blob=>{
+        if(blob) resolve(blob);
+        else reject(new Error("Image crop failed"));
+      },"image/jpeg",0.90);
+    });
+  }
+
+  async function uploadCropped(blob,folder,uid){
+    const path =
+      uid + "/" + folder + "_" + Date.now() + ".jpg";
+
+    const {error} = await sb.storage
+      .from("thumbnails")
+      .upload(path,blob,{
+        upsert:true,
+        contentType:"image/jpeg",
+        cacheControl:"3600"
+      });
+
+    if(error) throw error;
+
+    const {data} = sb.storage
+      .from("thumbnails")
+      .getPublicUrl(path);
+
+    return data.publicUrl;
+  }
+
+  async function saveProfile(){
+    const u = profileUser();
+    if(!u){
+      openAuth();
+      return;
+    }
+
+    const name = el("utxEditName").value.trim();
+    const username = el("utxEditHandle").value
+      .trim()
+      .replace(/^@/,"")
+      .replace(/[^a-zA-Z0-9._-]/g,"");
+
+    const bio = el("utxEditBio").value.trim();
+
+    if(!name){
+      toast("Channel Name डालें");
+      return;
+    }
+
+    if(!username || username.length < 3){
+      toast("Handle कम से कम 3 अक्षर का रखें");
+      return;
+    }
+
+    const saveBtn = el("utxSaveProfile");
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving...";
+
+    try{
+      const data = {
+        full_name:name,
+        username:username,
+        bio:bio
+      };
+
+      const logoFile = el("utxLogoFile").files[0];
+      const bannerFile = el("utxBannerFile").files[0];
+
+      if(logoFile){
+        data.avatar_url = await uploadCropped(
+          await cropImage(
+            logoFile,
+            "logo",
+            Number(el("utxLogoZoom").value),
+            Number(el("utxLogoX").value),
+            Number(el("utxLogoY").value)
+          ),
+          "avatar",
+          u.id
+        );
+      }
+
+      if(bannerFile){
+        data.banner_url = await uploadCropped(
+          await cropImage(
+            bannerFile,
+            "banner",
+            Number(el("utxBannerZoom").value),
+            Number(el("utxBannerX").value),
+            Number(el("utxBannerY").value)
+          ),
+          "banner",
+          u.id
+        );
+      }
+
+      let result = await sb
+        .from("profiles")
+        .update(data)
+        .eq("id",u.id);
+
+      if(result.error &&
+         String(result.error.message || "").toLowerCase().includes("banner_url")){
+        delete data.banner_url;
+
+        result = await sb
+          .from("profiles")
+          .update(data)
+          .eq("id",u.id);
+
+        if(result.error) throw result.error;
+
+        toast("Profile saved. Banner के लिए banner_url column जोड़ना बाकी है।");
+      }else if(result.error){
+        throw result.error;
+      }else{
+        toast("Channel successfully updated");
+      }
+
+      showProfileEditor(false);
+      await openProfile(u.id);
+
+    }catch(e){
+      console.error(e);
+      toast(e.message || "Channel save नहीं हुआ");
+    }finally{
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Channel";
+    }
+  }
+
+  [
+    ["utxLogoZoom","logo"],
+    ["utxLogoX","logo"],
+    ["utxLogoY","logo"],
+    ["utxBannerZoom","banner"],
+    ["utxBannerX","banner"],
+    ["utxBannerY","banner"]
+  ].forEach(([id,kind])=>{
+    el(id).addEventListener("input",()=>refreshCrop(kind));
+  });
+
+  el("utxLogoFile").addEventListener("change",e=>{
+    loadImage(e.target.files[0],"logo");
+  });
+
+  el("utxBannerFile").addEventListener("change",e=>{
+    loadImage(e.target.files[0],"banner");
+  });
+
+  el("utxProfileClose").addEventListener("click",closeProfile);
+  el("utxProfileClose2").addEventListener("click",closeProfile);
+  el("utxEditProfileBtn").addEventListener("click",openEditor);
+  el("utxSaveProfile").addEventListener("click",saveProfile);
+
+  window.addEventListener("click",e=>{
+    if(e.target === modal) closeProfile();
+  });
+
+  // Override only the My Channel action cleanly.
+  const myChannel = document.getElementById("myChannelBtn");
+  if(myChannel){
+    myChannel.onclick = function(e){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      openMyProfile();
+    };
+  }
+
+  // Header button: signed-in user opens own channel; otherwise login.
+  const authButton = document.getElementById("authBtn");
+  if(authButton){
+    authButton.addEventListener("dblclick",()=>{});
+  }
+
+  window.utxOpenMyProfile = openMyProfile;
+  window.utxOpenProfile = openProfile;
+})();
+</script>
+
+<style>
+#utxSharePanel{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:100010;display:none;align-items:center;justify-content:center;padding:16px}
+#utxSharePanel.show{display:flex}.utxShareBox{width:min(540px,100%);background:#fff;border-radius:20px;padding:22px;box-shadow:0 20px 80px rgba(0,0,0,.25)}
+#utxShareLink{width:100%;box-sizing:border-box;padding:12px;border:1px solid #dbe2ea;border-radius:11px;margin:10px 0 14px}.utxShareBtns{display:flex;gap:9px}.utxShareBtns button{flex:1;border:0;border-radius:11px;padding:11px;font-weight:800;cursor:pointer}.utxCopyBtn{background:#1976ff;color:#fff}.utxCloseShare{background:#eef2f7;color:#111827}
+.utxSubscribeBtn{border:0;border-radius:20px;padding:9px 15px;background:#1976ff;color:#fff;font-weight:800;cursor:pointer}.utxSubscribeBtn.subscribed{background:#eef2f7;color:#111827}
+</style>
+<div id="utxSharePanel"><div class="utxShareBox"><h3 style="margin:0 0 8px">Share Video</h3><div style="font-size:13px;color:#64748b">इस वीडियो का लिंक:</div><input id="utxShareLink" readonly><div class="utxShareBtns"><button class="utxCopyBtn" id="utxCopyShare">Copy Link</button><button class="utxCloseShare" id="utxCloseShare">Close</button></div></div></div>
+<script>
+(function(){
+function U(id){return document.getElementById(id)}
+function note(t){if(typeof toast==='function')toast(t);else alert(t)}
+function uid(){return(typeof currentUser!=='undefined'&&currentUser)?currentUser.id:null}
+
+// LIKE — video_likes table में id column की जरूरत नहीं।
+window.utxLikeFixed=async function(){
+ const user=uid();if(!user){note('Like करने के लिए Login करें');return}
+ if(typeof currentVideo==='undefined'||!currentVideo){note('पहले वीडियो खोलें');return}
+ const vid=currentVideo.id;
+ try{
+  const q=await sb.from('video_likes').select('video_id,user_id').eq('video_id',vid).eq('user_id',user).limit(1);
+  if(q.error)throw q.error;
+  if(q.data&&q.data.length){
+   const d=await sb.from('video_likes').delete().eq('video_id',vid).eq('user_id',user);if(d.error)throw d.error;note('Like हटाया गया')
+  }else{
+   const d=await sb.from('video_likes').insert({video_id:vid,user_id:user});if(d.error)throw d.error;note('Liked')
+  }
+  const c=await sb.from('video_likes').select('video_id',{count:'exact',head:true}).eq('video_id',vid);if(c.error)throw c.error;
+  currentVideo.likes=Number(c.count||0);if(U('likeCount'))U('likeCount').textContent=String(currentVideo.likes)
+ }catch(e){console.error(e);note('Like नहीं हो पाया: '+(e.message||'Database error'))}
+}
+
+// SHARE — link दिखाकर Copy करता है।
+window.utxShareFixed=function(){
+ if(typeof currentVideo==='undefined'||!currentVideo){note('पहले वीडियो खोलें');return}
+ const url=location.origin+location.pathname+'?video='+encodeURIComponent(currentVideo.id);
+ if(U('utxShareLink'))U('utxShareLink').value=url;if(U('utxSharePanel'))U('utxSharePanel').classList.add('show')
+}
+async function copyShare(){const i=U('utxShareLink');if(!i)return;try{await navigator.clipboard.writeText(i.value);note('Video link copy हो गया')}catch(e){i.focus();i.select();try{document.execCommand('copy');note('Video link copy हो गया')}catch(x){note('ऊपर दिया गया link copy करें')}}}
+
+// SUBSCRIBE — subscriptions table में id column की जरूरत नहीं।
+window.utxSubscribeFixed=async function(channelId,button){
+ const user=uid();if(!user){note('Subscribe करने के लिए Login करें');return}
+ if(!channelId||user===channelId){note('अपने ही channel को Subscribe नहीं कर सकते');return}
+ try{
+  const q=await sb.from('subscriptions').select('subscriber_id,channel_id').eq('subscriber_id',user).eq('channel_id',channelId).limit(1);if(q.error)throw q.error;
+  if(q.data&&q.data.length){const d=await sb.from('subscriptions').delete().eq('subscriber_id',user).eq('channel_id',channelId);if(d.error)throw d.error;if(button){button.textContent='Subscribe';button.classList.remove('subscribed')}note('Subscription हट गया')}
+  else{const d=await sb.from('subscriptions').insert({subscriber_id:user,channel_id:channelId});if(d.error)throw d.error;if(button){button.textContent='Subscribed';button.classList.add('subscribed')}note('Channel Subscribed')}
+ }catch(e){console.error(e);note('Subscribe नहीं हो पाया: '+(e.message||'Database error'))}
+}
+
+async function addWatchSubscribe(){
+ const modal=U('watchModal');if(!modal||modal.style.display==='none')return;if(U('utxWatchSubscribe'))return;
+ if(typeof currentVideo==='undefined'||!currentVideo)return;const actions=modal.querySelector('.watchActions');if(!actions)return;
+ const b=document.createElement('button');b.id='utxWatchSubscribe';b.className='utxSubscribeBtn';b.textContent='Subscribe';actions.appendChild(b);
+ const user=uid(),channelId=currentVideo.user_id;
+ if(user&&user!==channelId){const q=await sb.from('subscriptions').select('subscriber_id,channel_id').eq('subscriber_id',user).eq('channel_id',channelId).limit(1);if(!q.error&&q.data&&q.data.length){b.textContent='Subscribed';b.classList.add('subscribed')}}
+ b.onclick=function(e){e.preventDefault();e.stopPropagation();window.utxSubscribeFixed(channelId,b)}
+}
+
+document.addEventListener('click',function(e){
+ const like=e.target.closest('#likeBtn');if(like){e.preventDefault();e.stopImmediatePropagation();window.utxLikeFixed();return}
+ const share=e.target.closest('#shareBtn');if(share){e.preventDefault();e.stopImmediatePropagation();window.utxShareFixed();return}
+},true);
+
+if(U('utxCopyShare'))U('utxCopyShare').onclick=copyShare;if(U('utxCloseShare'))U('utxCloseShare').onclick=function(){U('utxSharePanel')?.classList.remove('show')};
+if(U('utxSharePanel'))U('utxSharePanel').onclick=function(e){if(e.target===U('utxSharePanel'))U('utxSharePanel').classList.remove('show')};
+const observer=new MutationObserver(function(){addWatchSubscribe()});if(document.body)observer.observe(document.body,{childList:true,subtree:true,attributes:true});
+
+// TUS upload में publishable key नहीं, असली login session access token इस्तेमाल होगा।
+window.utxRunUploadFixed=async function(data){
+ if(!data)return;const sess=await sb.auth.getSession();const session=sess.data&&sess.data.session;if(!session){note('पहले Sign In करें');return}
+ const file=data.video;if(!file)return;if(file.size>50*1024*1024){note('अभी Supabase Free Storage में 50 MB तक की सीमा है');return}
+ if(typeof showUploadTray==='function')showUploadTray(data.title||'Video');if(typeof setUploadStatus==='function')setUploadStatus('Uploading video...');
+ const safe=typeof safeFileName==='function'?safeFileName(file.name):file.name.replace(/[^a-zA-Z0-9._-]/g,'_');const objectName=session.user.id+'/'+Date.now()+'-'+safe;
+ const upload=new tus.Upload(file,{endpoint:SUPABASE_URL+'/storage/v1/upload/resumable',retryDelays:[0,1000,3000,5000,10000],headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+session.access_token},metadata:{bucketName:'videos',objectName:objectName,contentType:file.type||'video/mp4',cacheControl:'3600',upsert:'false'},uploadSize:file.size,
+ onError:function(err){console.error(err);if(typeof setUploadStatus==='function')setUploadStatus('Upload failed');note('Video upload failed')},
+ onProgress:function(a,b){if(typeof updateUploadProgress==='function')updateUploadProgress(a,b)},
+ onSuccess:async function(){try{
+  let thumbURL='';if(data.thumb){const ts=session.user.id+'/'+Date.now()+'-'+(typeof safeFileName==='function'?safeFileName(data.thumb.name):data.thumb.name.replace(/[^a-zA-Z0-9._-]/g,'_'));const tr=await sb.storage.from('thumbnails').upload(ts,data.thumb,{upsert:false,contentType:data.thumb.type});if(!tr.error)thumbURL=sb.storage.from('thumbnails').getPublicUrl(ts).data.publicUrl}
+  let duration=0;try{duration=await getVideoDuration(file)}catch(e){}
+  const publicURL=SUPABASE_URL+'/storage/v1/object/public/videos/'+objectName;
+  const r=await sb.from('videos').insert({user_id:session.user.id,title:data.title,description:data.description,video_url:publicURL,thumbnail_url:thumbURL,category:data.category,language:data.language,tags:data.tags,visibility:data.visibility,status:'published',views:0,likes:0,comments_count:0,duration_seconds:Math.round(duration)});if(r.error)throw r.error;
+  if(typeof setUploadStatus==='function')setUploadStatus('Published ✓');note('Video successfully published');lastUploadData=null;if(typeof loadVideos==='function')await loadVideos();setTimeout(function(){if(typeof hideUploadTray==='function')hideUploadTray()},3500)
+ }catch(e){console.error(e);if(typeof setUploadStatus==='function')setUploadStatus('Publishing failed');note('Publish नहीं हुआ: '+(e.message||'Database error'))}}
+ });
+ activeUpload=upload;try{const p=await upload.findPreviousUploads();if(p.length)upload.resumeFromPreviousUpload(p[0])}catch(e){}upload.start()
+}
+try{runUpload=window.utxRunUploadFixed}catch(e){window.runUpload=window.utxRunUploadFixed}
+
+// My Channel button को साफ तरीके से profile खोलने दें।
+const my=document.getElementById('myChannelBtn');if(my&&typeof window.utxOpenMyProfile==='function'){my.onclick=function(e){e.preventDefault();e.stopImmediatePropagation();window.utxOpenMyProfile()}}
+})();
+</script>
+
+</body>
+</html>
