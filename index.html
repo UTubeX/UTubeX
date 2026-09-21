@@ -3147,9 +3147,16 @@ async function openURLVideo(){
       }
 
       let result = await sb
-        .from("profiles")
-        .update(data)
-        .eq("id",u.id);
+  .from("profiles")
+  .upsert(
+    {
+      id: u.id,
+      ...data
+    },
+    {
+      onConflict: "id"
+    }
+  );
 
       if(result.error &&
          String(result.error.message || "").toLowerCase().includes("banner_url")){
